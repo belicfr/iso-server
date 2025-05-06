@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Iso.API.Controllers;
@@ -7,6 +8,7 @@ namespace Iso.API.Controllers;
 public class TestController: ControllerBase
 {
     [HttpGet]
+    [Authorize]
     public IActionResult Get()
     {
         return Ok("Hello World!");

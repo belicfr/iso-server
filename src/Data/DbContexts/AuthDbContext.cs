@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace Models.DbContexts;
+namespace Iso.Data.DbContexts;
 
-public class IdentityDbContext(DbContextOptions<IdentityDbContext> options)
+public class AuthDbContext(
+        DbContextOptions<AuthDbContext> options)
     : IdentityDbContext<IdentityUser>(options);

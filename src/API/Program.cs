@@ -1,12 +1,16 @@
+using Iso.Data.DbContexts;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Models.DbContexts;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<IdentityDbContext>(
+builder.Services.AddDbContext<AuthDbContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("DbConnectionString")));
+
+builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+    .AddEntityFrameworkStores<AuthDbContext>();
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -23,5 +27,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapControllers();
+app.MapIdentityApi<IdentityUser>();
 
 app.Run();
