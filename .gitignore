@@ -1,0 +1,37 @@
+# Dossiers et fichiers générés par Visual Studio/JetBrains Rider
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Dossiers de build
+bin/
+obj/
+out/
+
+# Fichiers de logs
+*.log
+
+# Fichiers de configuration locaux
+appsettings.Development.json
+
+# Fichiers spécifiques à macOS
+**/.DS_Store
+
+# Fichiers de dépendances
+*.nuget
+*.nupkg
+packages/
+
+# Fichiers de lock
+project.lock.json
+project.fragment.lock.json
+
+# Fichiers de test
+TestResults/
+
+# Fichiers générés par Rider
+*.iml
+.idea/
