@@ -40,3 +40,5 @@ TestResults/
 
 # Env
 env/.env
+
+src/API/Properties/
