@@ -34,3 +34,6 @@ TestResults/
 
 # Fichiers générés par Rider
 *.iml
+
+# CodeBuddy
+.codebuddy/
