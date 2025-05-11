@@ -37,3 +37,6 @@ TestResults/
 
 # CodeBuddy
 .codebuddy/
+
+# Env
+env/.env
