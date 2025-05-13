@@ -1,4 +1,4 @@
-namespace Iso.API.DTO;
+namespace Iso.Shared.DTO.Public;
 
 public record PublicAccountResponseModel(
     string id,
