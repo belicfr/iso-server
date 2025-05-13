@@ -17,13 +17,6 @@ public class AuthDbContext : IdentityDbContext<User>
         base.OnModelCreating(builder);
 
         builder.Entity<User>(entity =>
-        {
-            entity
-                .Property(u => u.Sso)
-                .HasMaxLength(256)
-                .IsRequired();
-
-            entity.Property(u => u.HomeRoomId);
-        });
+        { });
     }
 };

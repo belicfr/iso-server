@@ -1,4 +1,5 @@
 using System.Collections;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Iso.Data.Models.UserModel;
 
@@ -6,56 +7,61 @@ namespace Iso.Data.Models.RoomModel;
 
 public class Room
 {
+    [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString();
     
+    [Required]
+    [MaxLength(50)]
     public string Name { get; set; }
+    
+    [Required]
+    [MaxLength(1024)]
     public string Description { get; set; }
     
-    
+    [Required]
     public string OwnerId { get; set; }
     
     [NotMapped]
     public User Owner { get; set; }
     
-    
-    public IEnumerable<RoomTag> RoomTags { get; set; } = new HashSet<RoomTag>();
-    
+    [InverseProperty(nameof(RoomTag.Room))]
+    public ICollection<RoomTag> RoomTags { get; set; } = new HashSet<RoomTag>();
+
     [NotMapped]
-    public List<string> Tags { get; set; } = new();
-    
-    
+    public List<string> Tags
+        => RoomTags
+            .Select(t => t.Tag)
+            .Distinct()
+            .ToList();
+
+    [Range(1, 200)]
     public int PlayersLimit { get; set; }
     
     
-    [NotMapped]
-    public List<User> PlayersInRoom { get; set; } = new();
-    
-    
+    [Required]
     public string Template { get; set; }
     
-    
+    [InverseProperty(nameof(RoomBan.Room))]
     public IEnumerable<RoomBan> RoomBans { get; set; } = new HashSet<RoomBan>();
-    
-    public IEnumerable<RoomRight> RoomRights { get; set; } = new HashSet<RoomRight>();
-    
     
     [NotMapped]
     public List<User> BannedPlayers { get; set; } = new();
     
+    [InverseProperty(nameof(RoomRight.Room))]
+    public IEnumerable<RoomRight> RoomRights { get; set; } = new HashSet<RoomRight>();
+    
     [NotMapped]
     public List<User> PlayersWithRights { get; set; } = new();
     
-    
+    [InverseProperty(nameof(RoomBannedWord.Room))]
     public IEnumerable<RoomBannedWord> RoomBannedWords { get; set; } = new HashSet<RoomBannedWord>();
     
     [NotMapped]
     public List<string> BannedWords { get; set; } = new();
     
-    
-    public string? GroupId { get; set; }
-    
+    [InverseProperty(nameof(Group.Room))]
     public Group? Group { get; set; }
-    
-    
+
+    [Required]
     public bool IsPublic { get; set; }
 }

@@ -53,6 +53,9 @@ namespace Iso.Data.Migrations.Game
 
                     b.HasKey("Id");
 
+                    b.HasIndex("RoomId")
+                        .IsUnique();
+
                     b.ToTable("Groups");
                 });
 
@@ -78,9 +81,6 @@ namespace Iso.Data.Migrations.Game
                         .IsRequired()
                         .HasMaxLength(1024)
                         .HasColumnType("character varying(1024)");
-
-                    b.Property<string>("GroupId")
-                        .HasColumnType("text");
 
                     b.Property<bool>("IsPublic")
                         .HasColumnType("boolean");
@@ -149,15 +149,27 @@ namespace Iso.Data.Migrations.Game
 
             modelBuilder.Entity("Iso.Data.Models.RoomModel.RoomTag", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
                     b.Property<string>("RoomId")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnOrder(2);
 
                     b.Property<string>("Tag")
                         .IsRequired()
                         .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
+                        .HasColumnType("character varying(10)")
+                        .HasColumnOrder(1);
 
-                    b.HasKey("RoomId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomId");
 
                     b.ToTable("RoomTag");
                 });
@@ -181,22 +193,22 @@ namespace Iso.Data.Migrations.Game
                     b.ToTable("RoomTemplates");
                 });
 
+            modelBuilder.Entity("Iso.Data.Models.RoomModel.Group", b =>
+                {
+                    b.HasOne("Iso.Data.Models.RoomModel.Room", "Room")
+                        .WithOne("Group")
+                        .HasForeignKey("Iso.Data.Models.RoomModel.Group", "RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Room");
+                });
+
             modelBuilder.Entity("Iso.Data.Models.RoomModel.GroupMember", b =>
                 {
                     b.HasOne("Iso.Data.Models.RoomModel.Group", "Group")
                         .WithMany("GroupMembers")
                         .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Group");
-                });
-
-            modelBuilder.Entity("Iso.Data.Models.RoomModel.Room", b =>
-                {
-                    b.HasOne("Iso.Data.Models.RoomModel.Group", "Group")
-                        .WithOne("Room")
-                        .HasForeignKey("Iso.Data.Models.RoomModel.Room", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -250,13 +262,12 @@ namespace Iso.Data.Migrations.Game
             modelBuilder.Entity("Iso.Data.Models.RoomModel.Group", b =>
                 {
                     b.Navigation("GroupMembers");
-
-                    b.Navigation("Room")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Iso.Data.Models.RoomModel.Room", b =>
                 {
+                    b.Navigation("Group");
+
                     b.Navigation("RoomBannedWords");
 
                     b.Navigation("RoomBans");
