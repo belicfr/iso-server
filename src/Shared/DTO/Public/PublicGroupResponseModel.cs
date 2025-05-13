@@ -1,5 +1,3 @@
-using Iso.Data.Models.RoomModel;
-
 namespace Iso.Shared.DTO.Public;
 
 public record PublicGroupResponseModel(
@@ -7,6 +5,6 @@ public record PublicGroupResponseModel(
     string name,
     string description,
     string ownerId,
-    GroupMode mode,
+    int mode,
     string roomId,
     DateTime createdAt);
