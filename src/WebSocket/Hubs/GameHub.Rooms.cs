@@ -1,3 +1,4 @@
+using Iso.Data.Models.RoomModel;
 using Iso.Data.Models.UserModel;
 using Iso.Shared.DTO.Public;
 using Microsoft.AspNetCore.SignalR;
@@ -46,5 +47,65 @@ public partial class GameHub
                 user.Id));
         
         await Clients.Caller.SendAsync(responseChannel, rooms);
+    }
+
+    public async Task SendNewRoomName(string roomId, string name)
+    {
+        const string responseChannel = "ReceiveNewRoomName";
+        
+        Room? room = await roomService.GetRoomAsync(roomId);
+
+        if (room is null)
+        {
+            await Clients.Caller.SendAsync(
+                responseChannel,
+                null);
+
+            return;
+        }
+
+        await Clients.Caller.SendAsync(
+            responseChannel,
+            await roomService.SaveNewNameAsync(roomId, name));
+    }
+    
+    public async Task SendNewRoomDescription(string roomId, string description)
+    {
+        const string responseChannel = "ReceiveNewRoomDescription";
+        
+        Room? room = await roomService.GetRoomAsync(roomId);
+
+        if (room is null)
+        {
+            await Clients.Caller.SendAsync(
+                responseChannel,
+                null);
+
+            return;
+        }
+
+        await Clients.Caller.SendAsync(
+            responseChannel,
+            await roomService.SaveNewDescriptionAsync(roomId, description));
+    }
+    
+    public async Task SendNewRoomTag(string roomId, int position, string tag)
+    {
+        const string responseChannel = "ReceiveNewRoomDescription";
+        
+        Room? room = await roomService.GetRoomAsync(roomId);
+
+        if (room is null)
+        {
+            await Clients.Caller.SendAsync(
+                responseChannel,
+                null);
+
+            return;
+        }
+
+        await Clients.Caller.SendAsync(
+            responseChannel,
+            await roomService.SaveNewTagAsync(roomId, position, tag));
     }
 }
