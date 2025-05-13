@@ -86,6 +86,16 @@ public class AuthController(
 
         string jwt = _ssoUtilities.GenerateJwtToken(user.Sso);
         
-        return Ok(new AuthResponseModel(jwt));
+        CookieOptions cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = false,  // TODO: set to true on HTTPS domain
+            SameSite = SameSiteMode.Strict,  // Lax = cross-site only for important act. !== Strict = none cross-site
+            Path = "/",
+        };
+        
+        Response.Cookies.Append("jwt", jwt, cookieOptions);
+        
+        return Ok();
     }
 }
