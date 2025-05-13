@@ -5,4 +5,5 @@ public record RestrictedAccountResponseModel(
     string name,
     string normalizedName,
     string? homeRoomId,
-    int crowns);
+    int crowns,
+    List<string> friends);
