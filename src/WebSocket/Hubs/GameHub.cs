@@ -14,8 +14,28 @@ namespace Iso.WebSocket.Hubs;
 public partial class GameHub(
     RoomService roomService,
     UserService userService,
-    RoomRuntimeService roomRuntimeService): Hub
+    RoomRuntimeService roomRuntimeService,
+    UserRuntimeService userRuntimeService): Hub
 {
+    public override async Task OnDisconnectedAsync(Exception exception)
+    {
+        User? user = await GetUserBySso();
+
+        if (user is not null)
+        {
+            string? currentRoomId = userRuntimeService.GetCurrentRoom(user.Id);
+
+            if (currentRoomId is not null)
+            {
+                userRuntimeService.ClearCurrentRoom(user.Id);
+                roomRuntimeService.RemovePlayer(currentRoomId, user.Id);
+            }
+        }
+        
+        await base.OnDisconnectedAsync(exception);
+    }
+
+
     private IEnumerable<PublicNavigatorRoomResponseModel> PrepareRooms(
         IEnumerable<Room> rooms)
     {
@@ -31,7 +51,7 @@ public partial class GameHub(
                         room.Group.Name,
                         room.Group.Description,
                         room.Group.OwnerId,
-                        room.Group.GroupMode,
+                        (int) room.Group.GroupMode,
                         room.Group.RoomId,
                         room.Group.CreatedAt);
                 }
