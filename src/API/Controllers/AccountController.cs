@@ -1,6 +1,6 @@
-using Iso.API.DTO;
 using Iso.Data.Managers;
 using Iso.Data.Models.UserModel;
+using Iso.Shared.DTO.Public;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
