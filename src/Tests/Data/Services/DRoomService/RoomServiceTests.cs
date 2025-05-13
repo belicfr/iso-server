@@ -67,9 +67,9 @@ namespace Iso.Tests.Data.Services.DRoomService
         public async Task GetOwnerAsync_ReturnsOwner_WhenRoomExists()
         {
             // Arrange
-            var roomId = "room1";
-            var userId = "user1";
-            var room = new Room
+            string roomId = "room1";
+            string userId = "user1";
+            Room room = new Room
             { 
                 Id = roomId, 
                 OwnerId = userId,
@@ -77,7 +77,7 @@ namespace Iso.Tests.Data.Services.DRoomService
                 Description = "Sample Room Description",
                 Template = "",
             };
-            var user = new User { Id = userId };
+            User user = new User { Id = userId };
 
             _gameDbContext.Rooms.Add(room);
             _authDbContext.Users.Add(user);
@@ -85,7 +85,7 @@ namespace Iso.Tests.Data.Services.DRoomService
             await _authDbContext.SaveChangesAsync();
 
             // Act
-            var result = await _roomService.GetOwnerAsync(roomId);
+            User? result = await _roomService.GetOwnerAsync(roomId);
 
             // Assert
             Assert.Equal(userId, result?.Id);
