@@ -1,5 +1,4 @@
 using CommonUtilities;
-using Iso.API.DTO;
 using Iso.Data.Managers;
 using Iso.Data.Models.UserModel;
 using Microsoft.AspNetCore.Authorization;
