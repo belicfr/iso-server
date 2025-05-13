@@ -12,6 +12,7 @@ public class UserService(
     public async Task<User?> GetUserAsync(string userId)
     {
         User? user = await authDbContext.Users
+            .Include(r => r.UserFriends)
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Id == userId);
 
@@ -21,6 +22,7 @@ public class UserService(
     public async Task<User?> GetUserBySsoAsync(string sso)
     {
         User? user = await authDbContext.Users
+            .Include(r => r.UserFriends)
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Sso == sso);
         
