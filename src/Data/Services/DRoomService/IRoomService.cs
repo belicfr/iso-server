@@ -90,4 +90,11 @@ public interface IRoomService
     /// <param name="user"></param>
     /// <returns></returns>
     ServiceResponse AttemptEnterRoom(Room room, User user);
+
+    /// <summary>
+    /// Returns to hotel view.
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    ServiceResponse GoToHotelView(User user);
 }

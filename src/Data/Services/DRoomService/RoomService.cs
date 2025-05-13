@@ -2,6 +2,7 @@ using Iso.Data.DbContexts;
 using Iso.Data.Models.RoomModel;
 using Iso.Data.Models.UserModel;
 using Iso.Data.Services.DUserService;
+using Iso.Shared.DTO.Public;
 using Microsoft.EntityFrameworkCore;
 
 namespace Iso.Data.Services.DRoomService;
@@ -168,7 +169,48 @@ public class RoomService(
         // TODO: implement user's visits history
         userRuntimeService.SetCurrentRoom(user.Id, room.Id);
         roomRuntimeService.AddPlayer(room.Id, user.Id);
+
+        PublicGroupResponseModel? group = null;
+                
+        if (room.Group is not null)
+        {
+            group = new PublicGroupResponseModel(
+                room.Group.Id,
+                room.Group.Name,
+                room.Group.Description,
+                room.Group.OwnerId,
+                (int) room.Group.GroupMode,
+                room.Group.RoomId,
+                room.Group.CreatedAt);
+        }
+                
+        PublicNavigatorRoomResponseModel roomResponseModel =new PublicNavigatorRoomResponseModel(
+            room.Id,
+            room.Name,
+            room.Description,
+            roomRuntimeService.GetPlayers(room.Id).Count,
+            room.PlayersLimit,
+            room.Template,
+            group,
+            room.OwnerId,
+            room.Tags,
+            room.IsPublic);
         
+        return new(
+            Code: ServiceResponseCode.SUCCESS,
+            Props: new() { roomResponseModel });
+    }
+
+    public ServiceResponse GoToHotelView(User user)
+    {
+        string? currentRoomId = userRuntimeService.GetCurrentRoom(user.Id);
+
+        if (currentRoomId is not null)
+        {
+            userRuntimeService.ClearCurrentRoom(user.Id);
+            roomRuntimeService.RemovePlayer(currentRoomId, user.Id);
+        }
+
         return new(ServiceResponseCode.SUCCESS);
     }
 }
