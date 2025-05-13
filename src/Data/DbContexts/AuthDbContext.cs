@@ -18,5 +18,20 @@ public class AuthDbContext : IdentityDbContext<User>
 
         builder.Entity<User>(entity =>
         { });
+
+        builder.Entity<Friendship>(entity =>
+        {
+            entity.HasKey(f => new { f.UserId, f.FriendId });
+            
+            entity.HasOne(f => f.User)
+                .WithMany(u => u.UserFriends)
+                .HasForeignKey(f => f.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(f => f.Friend)
+                .WithMany(u => u.UserFriendOf)
+                .HasForeignKey(f => f.FriendId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
     }
 };
