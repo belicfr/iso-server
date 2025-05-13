@@ -23,6 +23,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Data\Data.csproj" />
         <ProjectReference Include="..\CommonUtilities\CommonUtilities.csproj" />
+        <ProjectReference Include="..\WebSocket\WebSocket.csproj" />
     </ItemGroup>
 
 </Project>
