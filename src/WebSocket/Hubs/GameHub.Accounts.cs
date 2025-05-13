@@ -58,4 +58,22 @@ public partial class GameHub
             responseChannel,
             roomService.AttemptEnterRoom(room, user));
     }
+
+    public async Task SendGoToHotelView()
+    {
+        const string responseChannel = "ReceiveGoToHotelView";
+        
+        User? user = await GetUserBySso();
+
+        if (user is null)
+        {
+            await Clients.Caller.SendAsync(responseChannel, null);
+
+            return;
+        }
+
+        await Clients.Caller.SendAsync(
+            responseChannel,
+            roomService.GoToHotelView(user));
+    }
 }
