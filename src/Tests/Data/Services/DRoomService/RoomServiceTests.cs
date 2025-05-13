@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Iso.Data.Services;
+using Iso.Data.Services.DUserService;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Iso.Tests.Data.Services.DRoomService
@@ -15,20 +18,42 @@ namespace Iso.Tests.Data.Services.DRoomService
         private readonly AuthDbContext _authDbContext;
         private readonly GameDbContext _gameDbContext;
         private readonly RoomService _roomService;
+        private readonly RoomRuntimeService _roomRuntimeService;
+        private readonly UserRuntimeService _userRuntimeService;
 
         public RoomServiceTests()
         {
-            var optionsAuth = new DbContextOptionsBuilder<AuthDbContext>()
-                .UseInMemoryDatabase(databaseName: "AuthTestDb")
-                .Options;
+            DbContextOptions<AuthDbContext> optionsAuth 
+                = new DbContextOptionsBuilder<AuthDbContext>()
+                    .UseInMemoryDatabase(databaseName: "AuthTestDb")
+                    .Options;
+            
             _authDbContext = new AuthDbContext(optionsAuth);
 
-            var optionsGame = new DbContextOptionsBuilder<GameDbContext>()
-                .UseInMemoryDatabase(databaseName: "GameTestDb")
-                .Options;
+            DbContextOptions<GameDbContext> optionsGame
+                = new DbContextOptionsBuilder<GameDbContext>()
+                    .UseInMemoryDatabase(databaseName: "GameTestDb")
+                    .Options;
+            
             _gameDbContext = new GameDbContext(optionsGame);
+            
+            ServiceCollection services = new ServiceCollection();
+            services.AddSingleton<RoomRuntimeService>();
+            services.AddSingleton<UserRuntimeService>();
+            
+            ServiceProvider serviceProvider = services.BuildServiceProvider();
 
-            _roomService = new RoomService(_authDbContext, _gameDbContext);
+            _roomRuntimeService 
+                = serviceProvider.GetRequiredService<RoomRuntimeService>();
+            
+            _userRuntimeService 
+                = serviceProvider.GetRequiredService<UserRuntimeService>();
+
+            _roomService = new RoomService(
+                _authDbContext, 
+                _gameDbContext,
+                _roomRuntimeService,
+                _userRuntimeService);
         }
 
         // Cleanup after each test
@@ -154,6 +179,126 @@ namespace Iso.Tests.Data.Services.DRoomService
 
             // Assert
             Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task AttemptEnterRoomAsync_Success_WhenRoomHasSpace()
+        {
+            // Arrange
+            var room = new Room
+            {
+                Id = "r1",
+                Name = "Room 1",
+                Description = "Sample Room Description",
+                OwnerId = "u100",
+                Template = "",
+                PlayersLimit = 2, 
+            };
+            
+            User user = new User { Id = "u1" };
+            
+            _gameDbContext.Rooms.Add(room);
+            await _gameDbContext.SaveChangesAsync();
+            
+            // Act
+            ServiceResponse result = _roomService.AttemptEnterRoom(room, user);
+            
+            // Assert
+            Assert.Equal(ServiceResponseCode.SUCCESS, result.Code);
+            Assert.Contains(
+                user.Id, 
+                _roomRuntimeService.GetPlayers(room.Id));
+            Assert.Equal(room.Id, _userRuntimeService.GetCurrentRoom(user.Id));
+        }
+
+        [Fact]
+        public async Task AttemptEnterRoomAsync_Fail_WhenRoomIsFull()
+        {
+            // Arrange
+            var room = new Room
+            {
+                Id = "r1", 
+                Name = "Room 1",
+                Description = "Sample Room Description",
+                OwnerId = "u100",
+                Template = "",
+                PlayersLimit = 1,
+            };
+            
+            User alreadyInRoomUser = new User { Id = "u1" };
+            User user = new User { Id = "u2" };
+        
+            _gameDbContext.Rooms.Add(room);
+            await _gameDbContext.SaveChangesAsync();
+            
+            _roomRuntimeService.AddPlayer(room.Id, alreadyInRoomUser.Id);
+            _userRuntimeService.SetCurrentRoom(alreadyInRoomUser.Id, room.Id);
+            
+            // Act
+            ServiceResponse result = _roomService.AttemptEnterRoom(room, user);
+            
+            // Assert
+            Assert.Equal(ServiceResponseCode.FAIL, result.Code);
+            Assert.DoesNotContain(
+                user.Id, 
+                _roomRuntimeService.GetPlayers(room.Id));
+            Assert.Null(_userRuntimeService.GetCurrentRoom(user.Id));
+        }
+
+        [Fact]
+        public async Task AttemptEnterRoomAsync_Fail_WhenUserIsBanned()
+        {
+            // Arrange
+            var room = new Room
+            {
+                Id = "r1",
+                Name = "Room 1",
+                Description = "Sample Room Description",
+                OwnerId = "u100",
+                Template = "",
+                PlayersLimit = 2,
+                BannedPlayers = new List<User>()
+            };
+            var bannedUser = new User { Id = "bannedUser" };
+            room.BannedPlayers.Add(bannedUser);
+            var user = new User { Id = "user1" };
+            _gameDbContext.Rooms.Add(room);
+            await _gameDbContext.SaveChangesAsync();
+            
+            // Act
+            var result = _roomService.AttemptEnterRoom(room, bannedUser);
+            
+            // Assert
+            Assert.Equal(ServiceResponseCode.FAIL, result.Code);
+            Assert.Contains(bannedUser, room.BannedPlayers);
+        }
+
+        [Fact]
+        public async Task AttemptEnterRoomAsync_Success_WhenUserIsNotBanned()
+        {
+            // Arrange
+            var room = new Room
+            {
+                Id = "r1",
+                Name = "Room 1",
+                Description = "Sample Room Description",
+                OwnerId = "u100",
+                Template = "",
+                PlayersLimit = 2,
+                BannedPlayers = new List<User>()
+            };
+            var user = new User { Id = "user1" };
+            _gameDbContext.Rooms.Add(room);
+            await _gameDbContext.SaveChangesAsync();
+            
+            // Act
+            var result = _roomService.AttemptEnterRoom(room, user);
+            
+            // Assert
+            Assert.Equal(ServiceResponseCode.SUCCESS, result.Code);
+            Assert.Contains(
+                user.Id, 
+                _roomRuntimeService.GetPlayers(room.Id));
         }
     }
 }
