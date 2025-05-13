@@ -1,14 +1,70 @@
 using Iso.Data.DbContexts;
 using Iso.Data.Models.RoomModel;
 using Iso.Data.Models.UserModel;
+using Iso.Data.Services.DUserService;
 using Microsoft.EntityFrameworkCore;
 
 namespace Iso.Data.Services.DRoomService;
 
 public class RoomService(
     AuthDbContext authDbContext,
-    GameDbContext gameDbContext): IRoomService
+    GameDbContext gameDbContext,
+    RoomRuntimeService roomRuntimeService,
+    UserRuntimeService userRuntimeService): IRoomService
 {
+    public async Task<Room?> GetRoomAsync(string id)
+    {
+        return await gameDbContext.Rooms
+            .FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+    public async Task<IEnumerable<Room>> GetAllRoomsAsync()
+    {
+        List<Room> rooms = await gameDbContext.Rooms
+            .Include(r => r.RoomBans)
+            .Include(r => r.RoomRights)
+            .Include(r => r.RoomTags)
+            .Include(r => r.RoomBannedWords)
+            .AsNoTracking()
+            .ToListAsync();
+        
+        return rooms;
+    }
+
+    public async Task<IEnumerable<Room>> GetPublicRoomsAsync()
+    {
+        List<Room> rooms = await gameDbContext.Rooms
+            .Include(r => r.RoomBans)
+            .Include(r => r.RoomRights)
+            .Include(r => r.RoomTags)
+            .Include(r => r.RoomBannedWords)
+            .AsNoTracking()
+            .Where(r => r.IsPublic)
+            .ToListAsync();
+        
+        return rooms;
+    }
+
+    public async Task<IEnumerable<Room>> GetPlayerRoomsAsync(string userId)
+    {
+        List<Room> rooms = await gameDbContext.Rooms
+            .Include(r => r.RoomBans)
+            .Include(r => r.RoomRights)
+            .Include(r => r.RoomTags)
+            .Include(r => r.RoomBannedWords)
+            .AsNoTracking()
+            .Where(r => r.OwnerId == userId)
+            .ToListAsync();
+        
+        return rooms;
+    }
+
+    public async Task<IEnumerable<Room>> GetPlayerRoomsAsync(User user)
+    {
+        return await GetPlayerRoomsAsync(user.Id);
+    }
+
+
     public async Task<User?> GetOwnerAsync(string roomId)
     {
         Room? room = gameDbContext.Rooms
@@ -78,5 +134,41 @@ public class RoomService(
     public async Task<IReadOnlyList<User>> GetPlayersWithRightsAsync(Room room)
     {
         return await GetPlayersWithRightsAsync(room.Id);
+    }
+
+
+    public ServiceResponse AttemptEnterRoom(Room room, User user)
+    {
+        bool isRoomFull = roomRuntimeService.GetPlayers(room.Id)
+            .Count >= room.PlayersLimit;
+        bool isBanned = room.BannedPlayers.Contains(user);
+
+        if (isRoomFull)
+        {
+            return new(
+                ServiceResponseCode.FAIL, 
+                "This room is full.");
+        }
+
+        if (isBanned)
+        {
+            return new(
+                ServiceResponseCode.FAIL,
+                "You are banned from this room.");
+        }
+
+        string? currentRoomId = userRuntimeService.GetCurrentRoom(user.Id);
+
+        if (currentRoomId is not null)
+        {
+            roomRuntimeService.RemovePlayer(currentRoomId, user.Id);
+            userRuntimeService.ClearCurrentRoom(user.Id);
+        }
+        
+        // TODO: implement user's visits history
+        userRuntimeService.SetCurrentRoom(user.Id, room.Id);
+        roomRuntimeService.AddPlayer(room.Id, user.Id);
+        
+        return new(ServiceResponseCode.SUCCESS);
     }
 }

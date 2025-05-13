@@ -18,6 +18,15 @@ public class UserService(
         return user ?? null;
     }
 
+    public async Task<User?> GetUserBySsoAsync(string sso)
+    {
+        User? user = await authDbContext.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Sso == sso);
+        
+        return user ?? null;
+    }
+
     public async Task<Room?> GetHomeRoomAsync(string userId)
     {
         string? homeRoomId = await authDbContext.Users

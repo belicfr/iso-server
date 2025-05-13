@@ -13,6 +13,13 @@ public interface IUserService
     Task<User?> GetUserAsync(string userId);
     
     /// <summary>
+    /// Loads the user's account using its SSO token.
+    /// </summary>
+    /// <param name="sso"></param>
+    /// <returns></returns>
+    Task<User?> GetUserBySsoAsync(string sso);
+    
+    /// <summary>
     /// Loads the user's home room (if exists).
     /// </summary>
     /// <param name="userId"></param>
