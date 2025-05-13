@@ -19,6 +19,10 @@ public partial class GameHub
             return;
         }
         
+        List<string> friendsIds = user.UserFriends
+            .Select(uf => uf.UserId)
+            .ToList();
+        
         await Clients.Caller.SendAsync(
             responseChannel, 
             new RestrictedAccountResponseModel(
@@ -26,7 +30,8 @@ public partial class GameHub
                 user.UserName ?? "Unknown",
                 user.NormalizedUserName ?? "Unknown",
                 user.HomeRoomId,
-                user.Crowns));
+                user.Crowns,
+                friendsIds));
     }
 
     public async Task SendRoomEnterAttempt(string roomId)
