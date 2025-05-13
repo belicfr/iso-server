@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 using Iso.Data.Models.RoomModel;
+using System.Collections.Generic;
 
 namespace Iso.Data.Models.UserModel;
 
@@ -19,4 +20,10 @@ public class User: IdentityUser
     
     [NotMapped]
     public Room? HomeRoom { get; set; }
+    
+    [InverseProperty(nameof(Friendship.User))]
+    public ICollection<Friendship> UserFriends { get; set; }
+    
+    [InverseProperty(nameof(Friendship.Friend))]
+    public ICollection<Friendship> UserFriendOf { get; set; }
 }
