@@ -54,14 +54,14 @@ public partial class GameHub(
     /// Retrieve SSO from Sub JWT claim.
     /// </summary>
     /// <returns></returns>
-    private string? GetSoo()
+    private string? GetSso()
     {
         return Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     }
 
     private async Task<User?> GetUserBySso()
     {
-        string? sso = GetSoo();
+        string? sso = GetSso();
         
         if (string.IsNullOrWhiteSpace(sso))
         {
