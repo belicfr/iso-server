@@ -138,6 +138,84 @@ public class RoomService(
     }
 
 
+    public async Task<ServiceResponse> SaveNewNameAsync(string roomId, string name)
+    {
+        Room? room = await GetRoomAsync(roomId);
+
+        if (room is null)
+        {
+            return new ServiceResponse(
+                ServiceResponseCode.FAIL,
+                "Room not found");
+        }
+        
+        room.Name = name;
+        await gameDbContext.SaveChangesAsync();
+
+        return new ServiceResponse(ServiceResponseCode.SUCCESS);
+    }
+
+    public async Task<ServiceResponse> SaveNewNameAsync(Room room, string name)
+    {
+        return await SaveNewNameAsync(room.Id, name);
+    }
+
+
+    public async Task<ServiceResponse> SaveNewDescriptionAsync(string roomId, string description)
+    {
+        Room? room = await GetRoomAsync(roomId);
+
+        if (room is null)
+        {
+            return new ServiceResponse(
+                ServiceResponseCode.FAIL,
+                "Room not found");
+        }
+        
+        room.Description = description;
+        await gameDbContext.SaveChangesAsync();
+        
+        return new ServiceResponse(ServiceResponseCode.SUCCESS);
+    }
+
+    public async Task<ServiceResponse> SaveNewDescriptionAsync(Room room, string description)
+    {
+        return await SaveNewDescriptionAsync(room.Id, description);
+    }
+
+
+    public async Task<ServiceResponse> SaveNewTagAsync(string roomId, int position, string tag)
+    {
+        if (position < 0 || position >= 2)
+        {
+            return new ServiceResponse(
+                ServiceResponseCode.FAIL,
+                "Invalid tag position");
+        }
+        
+        Room? room = await GetRoomAsync(roomId);
+
+        if (room is null)
+        {
+            return new ServiceResponse(
+                ServiceResponseCode.FAIL,
+                "Room not found");
+        }
+
+        List<RoomTag> tags = room.RoomTags.ToList();
+        
+        tags[position].Tag = tag;
+        await gameDbContext.SaveChangesAsync();
+        
+        return new ServiceResponse(ServiceResponseCode.SUCCESS);
+    }
+
+    public async Task<ServiceResponse> SaveNewTagAsync(Room room, int position, string tag)
+    {
+        return await SaveNewTagAsync(room.Id, position, tag); 
+    }
+
+
     public ServiceResponse AttemptEnterRoom(Room room, User user)
     {
         bool isRoomFull = roomRuntimeService.GetPlayers(room.Id)

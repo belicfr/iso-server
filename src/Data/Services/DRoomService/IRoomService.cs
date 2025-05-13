@@ -84,6 +84,59 @@ public interface IRoomService
     
     
     /// <summary>
+    /// Saves a new name for the provided room.
+    /// </summary>
+    /// <param name="roomId"></param>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    Task<ServiceResponse> SaveNewNameAsync(string roomId, string name);
+    
+    /// <summary>
+    /// Saves a new name for the provided room.
+    /// </summary>
+    /// <param name="room"></param>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    Task<ServiceResponse> SaveNewNameAsync(Room room, string name);
+    
+    
+    /// <summary>
+    /// Saves a new description for the provided room.
+    /// </summary>
+    /// <param name="roomId"></param>
+    /// <param name="description"></param>
+    /// <returns></returns>
+    Task<ServiceResponse> SaveNewDescriptionAsync(string roomId, string description);
+    
+    /// <summary>
+    /// Saves a new description for the provided room.
+    /// </summary>
+    /// <param name="room"></param>
+    /// <param name="description"></param>
+    /// <returns></returns>
+    Task<ServiceResponse> SaveNewDescriptionAsync(Room room, string description);
+    
+    
+    /// <summary>
+    /// Saves a new tag at given position for the provided room.
+    /// </summary>
+    /// <param name="roomId"></param>
+    /// <param name="position"></param>
+    /// <param name="tag"></param>
+    /// <returns></returns>
+    Task<ServiceResponse> SaveNewTagAsync(string roomId, int position, string tag);
+    
+    /// <summary>
+    /// Saves a new tag at given position for the provided room.
+    /// </summary>
+    /// <param name="room"></param>
+    /// <param name="position"></param>
+    /// <param name="tag"></param>
+    /// <returns></returns>
+    Task<ServiceResponse> SaveNewTagAsync(Room room, int position, string tag);
+    
+    
+    /// <summary>
     /// Attempts to enter a room.
     /// </summary>
     /// <param name="room"></param>
