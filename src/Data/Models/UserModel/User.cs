@@ -21,9 +21,6 @@ public class User: IdentityUser
     [NotMapped]
     public Room? HomeRoom { get; set; }
     
-    [InverseProperty(nameof(Friendship.User))]
-    public ICollection<Friendship> UserFriends { get; set; }
-    
-    [InverseProperty(nameof(Friendship.Friend))]
-    public ICollection<Friendship> UserFriendOf { get; set; }
+    public List<User> Friends { get; set; } = new();
+
 }

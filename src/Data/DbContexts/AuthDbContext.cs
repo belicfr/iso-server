@@ -9,6 +9,8 @@ namespace Iso.Data.DbContexts;
 
 public class AuthDbContext : IdentityDbContext<User>
 {
+    public DbSet<Friendship> Friendships { get; set; }
+    
     public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options)
     { }
 
@@ -19,19 +21,20 @@ public class AuthDbContext : IdentityDbContext<User>
         builder.Entity<User>(entity =>
         { });
 
-        builder.Entity<Friendship>(entity =>
-        {
-            entity.HasKey(f => new { f.UserId, f.FriendId });
-            
-            entity.HasOne(f => f.User)
-                .WithMany(u => u.UserFriends)
-                .HasForeignKey(f => f.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<User>()
+            .HasMany(u => u.Friends)
+            .WithMany()
+            .UsingEntity<Friendship>(
+                j => j.HasOne(f => f.Friend)
+                    .WithMany()
+                    .HasForeignKey(f => f.FriendId)
+                    .OnDelete(DeleteBehavior.Cascade),
+                j => j.HasOne(f => f.User)
+                    .WithMany()
+                    .HasForeignKey(f => f.UserId)
+                    .OnDelete(DeleteBehavior.Cascade),
+                j => j.HasKey(f => new { f.UserId, f.FriendId }));
 
-            entity.HasOne(f => f.Friend)
-                .WithMany(u => u.UserFriendOf)
-                .HasForeignKey(f => f.FriendId)
-                .OnDelete(DeleteBehavior.Restrict);
-        });
+
     }
 };
