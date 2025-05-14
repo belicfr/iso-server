@@ -32,4 +32,11 @@ public interface IUserService
     /// <param name="userId"></param>
     /// <returns></returns>
     Task<IReadOnlyList<Room>> GetRoomsForUserAsync(string userId);
+    
+    /// <summary>
+    /// Returns if user id exists.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task<bool> IsUserExistingAsync(string userId);
 }

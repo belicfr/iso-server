@@ -55,4 +55,10 @@ public class UserService(
             // .Take(pageSize)
             .ToListAsync();
     }
+
+    public async Task<bool> IsUserExistingAsync(string userId)
+    {
+        return await authDbContext.Users
+            .AnyAsync(u => u.Id == userId);
+    }
 }
