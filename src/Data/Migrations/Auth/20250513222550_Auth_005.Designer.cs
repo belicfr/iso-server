@@ -3,17 +3,20 @@ using System;
 using Iso.Data.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Iso.Data.Migrations
+namespace Iso.Data.Migrations.Auth
 {
     [DbContext(typeof(AuthDbContext))]
-    partial class AuthDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250513222550_Auth_005")]
+    partial class Auth_005
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +37,7 @@ namespace Iso.Data.Migrations
 
                     b.HasIndex("FriendId");
 
-                    b.ToTable("Friendships", (string)null);
+                    b.ToTable("Friendships");
                 });
 
             modelBuilder.Entity("Iso.Data.Models.UserModel.User", b =>
