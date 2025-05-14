@@ -9,5 +9,6 @@ public record PublicNavigatorRoomResponseModel(
     string template,
     PublicGroupResponseModel? group,
     string ownerId,
-    List<string> tags,
+    string? tagOne,
+    string? tagTwo,
     bool isPublic);
