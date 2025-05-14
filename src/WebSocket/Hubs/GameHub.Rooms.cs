@@ -43,10 +43,52 @@ public partial class GameHub
         }
 
         IEnumerable<PublicNavigatorRoomResponseModel> rooms
-            = PrepareRooms(await userService.GetRoomsForUserAsync(
-                user.Id));
+            = PrepareRooms(
+                await userService.GetRoomsForUserAsync(user.Id));
         
         await Clients.Caller.SendAsync(responseChannel, rooms);
+    }
+
+    public async Task SendRoom(string roomId)
+    {
+        const string responseChannel = "ReceiveRoom";
+
+        User? user = await GetUserBySso();
+        
+        if (user is null)
+        {
+            await Clients.Caller.SendAsync(
+                responseChannel, 
+                null);
+
+            return;
+        }
+        
+        Room? room = await roomService.GetRoomAsync(roomId);
+
+        if (room is null)
+        {
+            await Clients.Caller.SendAsync(
+                responseChannel,
+                null);
+
+            return;
+        }
+
+        object roomResponseModel;
+
+        if (room.OwnerId == user.Id)
+        {
+            roomResponseModel 
+                = await PrepareRoomForOwner(room);
+        }
+        else
+        {
+            roomResponseModel 
+                = PrepareRoom(room);
+        }
+
+        await Clients.Caller.SendAsync(responseChannel, roomResponseModel);
     }
 
     public async Task SendNewRoomName(string roomId, string name)
