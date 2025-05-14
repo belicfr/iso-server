@@ -1,6 +1,7 @@
 using Iso.Data.Models.RoomModel;
 using Iso.Data.Models.UserModel;
 using Iso.Shared.DTO.Public;
+using Iso.Shared.DTO.Restricted;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Iso.WebSocket.Hubs;
@@ -149,5 +150,45 @@ public partial class GameHub
         await Clients.Caller.SendAsync(
             responseChannel,
             await roomService.SaveNewTagAsync(roomId, position, tag));
+    }
+
+    public async Task SendNewRoomRight(string roomId, string userId)
+    {
+        const string responseChannel = "ReceiveNewRoomRight";
+        
+        Room? room = await roomService.GetRoomAsync(roomId);
+
+        if (room is null)
+        {
+            await Clients.Caller.SendAsync(
+                responseChannel,
+                null);
+
+            return;
+        }
+
+        await Clients.Caller.SendAsync(
+            responseChannel,
+            await roomService.AddRoomRightsAsync(roomId, userId));
+    }
+
+    public async Task SendRemoveRoomRight(string roomId, string userId)
+    {
+        const string responseChannel = "ReceiveRemoveRoomRight";
+        
+        Room? room = await roomService.GetRoomAsync(roomId);
+
+        if (room is null)
+        {
+            await Clients.Caller.SendAsync(
+                responseChannel,
+                null);
+
+            return;
+        }
+
+        await Clients.Caller.SendAsync(
+            responseChannel,
+            await roomService.RemoveRoomRightsAsync(roomId, userId));
     }
 }
