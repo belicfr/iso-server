@@ -38,19 +38,19 @@ public class Room
     public string Template { get; set; }
     
     [InverseProperty(nameof(RoomBan.Room))]
-    public IEnumerable<RoomBan> RoomBans { get; set; } = new HashSet<RoomBan>();
+    public ICollection<RoomBan> RoomBans { get; set; } = new HashSet<RoomBan>();
     
     [NotMapped]
     public List<User> BannedPlayers { get; set; } = new();
     
     [InverseProperty(nameof(RoomRight.Room))]
-    public IEnumerable<RoomRight> RoomRights { get; set; } = new HashSet<RoomRight>();
+    public ICollection<RoomRight> RoomRights { get; set; } = new HashSet<RoomRight>();
     
     [NotMapped]
     public List<User> PlayersWithRights { get; set; } = new();
     
     [InverseProperty(nameof(RoomBannedWord.Room))]
-    public IEnumerable<RoomBannedWord> RoomBannedWords { get; set; } = new HashSet<RoomBannedWord>();
+    public ICollection<RoomBannedWord> RoomBannedWords { get; set; } = new HashSet<RoomBannedWord>();
     
     [NotMapped]
     public List<string> BannedWords { get; set; } = new();
