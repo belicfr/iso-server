@@ -144,10 +144,45 @@ public interface IRoomService
     /// <returns></returns>
     ServiceResponse AttemptEnterRoom(Room room, User user);
 
+    
     /// <summary>
     /// Returns to hotel view.
     /// </summary>
     /// <param name="user"></param>
     /// <returns></returns>
     ServiceResponse GoToHotelView(User user);
+
+
+    /// <summary>
+    /// Gives rights to the given user for the provided room. 
+    /// </summary>
+    /// <param name="roomId"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task<ServiceResponse> AddRoomRightsAsync(string roomId, string userId);
+
+    /// <summary>
+    /// Gives rights to the given user for the provided room. 
+    /// </summary>
+    /// <param name="room"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task<ServiceResponse> AddRoomRightsAsync(Room room, string userId);
+    
+    
+    /// <summary>
+    /// Removes rights from given user for the provided room. 
+    /// </summary>
+    /// <param name="roomId"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task<ServiceResponse> RemoveRoomRightsAsync(string roomId, string userId);
+    
+    /// <summary>
+    /// Removes rights from given user for the provided room. 
+    /// </summary>
+    /// <param name="room"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task<ServiceResponse> RemoveRoomRightsAsync(Room room, string userId);
 }

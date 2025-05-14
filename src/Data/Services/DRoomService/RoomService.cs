@@ -10,12 +10,14 @@ namespace Iso.Data.Services.DRoomService;
 public class RoomService(
     AuthDbContext authDbContext,
     GameDbContext gameDbContext,
+    UserService userService,
     RoomRuntimeService roomRuntimeService,
     UserRuntimeService userRuntimeService): IRoomService
 {
     public async Task<Room?> GetRoomAsync(string id)
     {
         return await gameDbContext.Rooms
+            .Include(r => r.RoomRights)
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
@@ -24,7 +26,6 @@ public class RoomService(
         List<Room> rooms = await gameDbContext.Rooms
             .Include(r => r.RoomBans)
             .Include(r => r.RoomRights)
-            .Include(r => r.RoomTags)
             .Include(r => r.RoomBannedWords)
             .AsNoTracking()
             .ToListAsync();
@@ -37,7 +38,6 @@ public class RoomService(
         List<Room> rooms = await gameDbContext.Rooms
             .Include(r => r.RoomBans)
             .Include(r => r.RoomRights)
-            .Include(r => r.RoomTags)
             .Include(r => r.RoomBannedWords)
             .AsNoTracking()
             .Where(r => r.IsPublic)
@@ -51,7 +51,6 @@ public class RoomService(
         List<Room> rooms = await gameDbContext.Rooms
             .Include(r => r.RoomBans)
             .Include(r => r.RoomRights)
-            .Include(r => r.RoomTags)
             .Include(r => r.RoomBannedWords)
             .AsNoTracking()
             .Where(r => r.OwnerId == userId)
@@ -186,7 +185,7 @@ public class RoomService(
 
     public async Task<ServiceResponse> SaveNewTagAsync(string roomId, int position, string tag)
     {
-        if (position < 0 || position >= 2)
+        if (position < 0 || position > 1)
         {
             return new ServiceResponse(
                 ServiceResponseCode.FAIL,
@@ -202,9 +201,17 @@ public class RoomService(
                 "Room not found");
         }
 
-        List<RoomTag> tags = room.RoomTags.ToList();
-        
-        tags[position].Tag = tag;
+        switch (position)
+        {
+            case 0:
+                room.TagOne = tag;
+                break;
+            
+            case 1:
+                room.TagTwo = tag;
+                break;
+        }
+
         await gameDbContext.SaveChangesAsync();
         
         return new ServiceResponse(ServiceResponseCode.SUCCESS);
@@ -262,7 +269,7 @@ public class RoomService(
                 room.Group.CreatedAt);
         }
                 
-        PublicNavigatorRoomResponseModel roomResponseModel =new PublicNavigatorRoomResponseModel(
+        PublicNavigatorRoomResponseModel roomResponseModel = new PublicNavigatorRoomResponseModel(
             room.Id,
             room.Name,
             room.Description,
@@ -271,13 +278,15 @@ public class RoomService(
             room.Template,
             group,
             room.OwnerId,
-            room.Tags,
+            room.TagOne,
+            room.TagTwo,
             room.IsPublic);
         
         return new(
             Code: ServiceResponseCode.SUCCESS,
             Props: new() { roomResponseModel });
     }
+    
 
     public ServiceResponse GoToHotelView(User user)
     {
@@ -290,5 +299,124 @@ public class RoomService(
         }
 
         return new(ServiceResponseCode.SUCCESS);
+    }
+
+
+    public async Task<ServiceResponse> AddRoomRightsAsync(string roomId, string userId)
+    {
+        Room? room = await GetRoomAsync(roomId);
+        
+        if (room is null)
+        {
+            return new ServiceResponse(
+                ServiceResponseCode.FAIL,
+                "Room not found");
+        }
+
+        User? user = await userService.GetUserAsync(userId);
+
+        if (user is null)
+        {
+            return new ServiceResponse(
+                ServiceResponseCode.FAIL,
+                "User not found");
+        }
+
+        if (userId == room.OwnerId)
+        {
+            return new ServiceResponse(
+                ServiceResponseCode.FAIL,
+                "You are already owner of this room.");
+        }
+        
+        bool roomRightAlreadyGiven = room.RoomRights
+            .Any(r => r.UserId == userId && r.RoomId == roomId);
+        
+        if (roomRightAlreadyGiven)
+        {
+            return new ServiceResponse(
+                ServiceResponseCode.FAIL,
+                "This player already has right to this room.");
+        }
+        
+        room.RoomRights.Add(new RoomRight
+        {
+            RoomId = roomId,
+            UserId = userId,
+        });
+        
+        await gameDbContext.SaveChangesAsync();
+        
+        return new ServiceResponse(
+            ServiceResponseCode.SUCCESS,
+            Props: new()
+            {
+                new PublicAccountResponseModel(
+                    user.Id,
+                    user.UserName ?? "Unknown",
+                    user.NormalizedUserName ?? "Unknown")
+            });
+    }
+
+    public async Task<ServiceResponse> AddRoomRightsAsync(Room room, string userId)
+    {
+        return await AddRoomRightsAsync(room.Id, userId);
+    }
+
+
+    public async Task<ServiceResponse> RemoveRoomRightsAsync(string roomId, string userId)
+    {
+        Room? room = await GetRoomAsync(roomId);
+        
+        if (room is null)
+        {
+            return new ServiceResponse(
+                ServiceResponseCode.FAIL,
+                "Room not found");
+        }
+
+        User? user = await userService.GetUserAsync(userId);
+
+        if (user is null)
+        {
+            return new ServiceResponse(
+                ServiceResponseCode.FAIL,
+                "User not found");
+        }
+        
+        if (userId == room.OwnerId)
+        {
+            return new ServiceResponse(
+                ServiceResponseCode.FAIL,
+                "You are the owner of this room.");
+        }
+
+        RoomRight? roomRightAlreadyGiven = room.RoomRights
+            .FirstOrDefault(r => r.UserId == userId && r.RoomId == roomId);
+        
+        if (roomRightAlreadyGiven is null)
+        {
+            return new ServiceResponse(
+                ServiceResponseCode.FAIL,
+                "This player does not have right to this room.");
+        }
+        
+        room.RoomRights.Remove(roomRightAlreadyGiven);
+        await gameDbContext.SaveChangesAsync();
+        
+        return new ServiceResponse(
+            ServiceResponseCode.SUCCESS,
+            Props: new()
+            {
+                new PublicAccountResponseModel(
+                    user.Id,
+                    user.UserName ?? "Unknown",
+                    user.NormalizedUserName ?? "Unknown")
+            });
+    }
+
+    public async Task<ServiceResponse> RemoveRoomRightsAsync(Room room, string userId)
+    {
+        return await RemoveRoomRightsAsync(room.Id, userId);
     }
 }
