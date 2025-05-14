@@ -107,5 +107,47 @@ namespace Iso.Tests.Data.Services.DUserService
             Assert.NotNull(result);
             Assert.Empty(result);
         }
+
+        [Fact]
+        public async Task IsUserExistingAsync_UserExists_ReturnsTrue()
+        {
+            // Arrange
+            var userId = "existing-user-id";
+            _userServiceMock.Setup(us => us.IsUserExistingAsync(userId)).ReturnsAsync(true);
+            
+            // Act
+            var result = await _userServiceMock.Object.IsUserExistingAsync(userId);
+            
+            // Assert
+            Assert.True(result);
+        }
+
+        [Fact]
+        public async Task IsUserExistingAsync_UserDoesNotExist_ReturnsFalse()
+        {
+            // Arrange
+            var userId = "non-existent-user-id";
+            _userServiceMock.Setup(us => us.IsUserExistingAsync(userId)).ReturnsAsync(false);
+            
+            // Act
+            var result = await _userServiceMock.Object.IsUserExistingAsync(userId);
+            
+            // Assert
+            Assert.False(result);
+        }
+
+        [Fact]
+        public async Task IsUserExistingAsync_NullUserId_ReturnsFalse()
+        {
+            // Arrange
+            string userId = null;
+            _userServiceMock.Setup(us => us.IsUserExistingAsync(userId)).ReturnsAsync(false);
+            
+            // Act
+            var result = await _userServiceMock.Object.IsUserExistingAsync(userId);
+            
+            // Assert
+            Assert.False(result);
+        }
     }
 }

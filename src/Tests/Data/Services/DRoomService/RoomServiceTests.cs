@@ -18,6 +18,7 @@ namespace Iso.Tests.Data.Services.DRoomService
         private readonly AuthDbContext _authDbContext;
         private readonly GameDbContext _gameDbContext;
         private readonly RoomService _roomService;
+        private readonly UserService _userService;
         private readonly RoomRuntimeService _roomRuntimeService;
         private readonly UserRuntimeService _userRuntimeService;
 
@@ -38,6 +39,11 @@ namespace Iso.Tests.Data.Services.DRoomService
             _gameDbContext = new GameDbContext(optionsGame);
             
             ServiceCollection services = new ServiceCollection();
+            services.AddDbContext<AuthDbContext>(options =>
+                options.UseInMemoryDatabase("AuthTestDb"));
+            services.AddDbContext<GameDbContext>(options =>
+                options.UseInMemoryDatabase("GameTestDb"));
+            services.AddScoped<UserService>();
             services.AddSingleton<RoomRuntimeService>();
             services.AddSingleton<UserRuntimeService>();
             
@@ -48,10 +54,14 @@ namespace Iso.Tests.Data.Services.DRoomService
             
             _userRuntimeService 
                 = serviceProvider.GetRequiredService<UserRuntimeService>();
+            
+            _userService 
+                = serviceProvider.GetRequiredService<UserService>();
 
             _roomService = new RoomService(
                 _authDbContext, 
                 _gameDbContext,
+                _userService,
                 _roomRuntimeService,
                 _userRuntimeService);
         }
@@ -299,6 +309,290 @@ namespace Iso.Tests.Data.Services.DRoomService
             Assert.Contains(
                 user.Id, 
                 _roomRuntimeService.GetPlayers(room.Id));
+        }
+
+        [Fact]
+        public async Task SaveNewNameAsync_Success_WhenRoomExists()
+        {
+            // Arrange
+            var room = new Room 
+            {
+                Id = "room1", 
+                OwnerId = "owner1",
+                Name = "Room 1",
+                Description = "Sample Room Description",
+                Template = "",
+            };
+            _gameDbContext.Rooms.Add(room);
+            await _gameDbContext.SaveChangesAsync();
+            
+            // Act
+            var result = await _roomService.SaveNewNameAsync(room.Id, "New Name");
+            
+            // Assert
+            Assert.Equal(ServiceResponseCode.SUCCESS, result.Code);
+            Assert.Equal("New Name", room.Name);
+        }
+
+        [Fact]
+        public async Task SaveNewNameAsync_Fail_WhenRoomDoesNotExist()
+        {
+            // Act
+            var result = await _roomService.SaveNewNameAsync("nonexistentRoom", "New Name");
+            
+            // Assert
+            Assert.Equal(ServiceResponseCode.FAIL, result.Code);
+        }
+
+        [Fact]
+        public async Task SaveNewDescriptionAsync_Success_WhenRoomExists()
+        {
+            // Arrange
+            var room = new Room 
+            {
+                Id = "room1", 
+                OwnerId = "owner1",
+                Name = "Room 1",
+                Description = "Sample Room Description",
+                Template = "",
+            };
+            _gameDbContext.Rooms.Add(room);
+            await _gameDbContext.SaveChangesAsync();
+            
+            // Act
+            var result = await _roomService.SaveNewDescriptionAsync(room.Id, "New Description");
+            
+            // Assert
+            Assert.Equal(ServiceResponseCode.SUCCESS, result.Code);
+            Assert.Equal("New Description", room.Description);
+        }
+
+        [Fact]
+        public async Task SaveNewDescriptionAsync_Fail_WhenRoomDoesNotExist()
+        {
+            // Act
+            var result = await _roomService.SaveNewDescriptionAsync("nonexistentRoom", "New Description");
+            
+            // Assert
+            Assert.Equal(ServiceResponseCode.FAIL, result.Code);
+        }
+
+        [Fact]
+        public async Task AddRoomRightsAsync_Success_WhenRoomAndUserExist()
+        {
+            // Arrange
+            var room = new Room 
+            {
+                Id = "room1", 
+                OwnerId = "owner1",
+                Name = "Room 1",
+                Description = "Sample Room Description",
+                Template = "",
+            };
+            var user = new User { Id = "user1" };
+            _gameDbContext.Rooms.Add(room);
+            _authDbContext.Users.Add(user);
+            await _gameDbContext.SaveChangesAsync();
+            await _authDbContext.SaveChangesAsync();
+            
+            // Act
+            var result = await _roomService.AddRoomRightsAsync(room.Id, user.Id);
+            
+            // Assert
+            Assert.Equal(ServiceResponseCode.SUCCESS, result.Code);
+            Assert.Contains(room.RoomRights, r => r.UserId == user.Id);
+        }
+
+        [Fact]
+        public async Task AddRoomRightsAsync_Fail_WhenRoomDoesNotExist()
+        {
+            // Act
+            var result = await _roomService.AddRoomRightsAsync("nonexistentRoom", "user1");
+            
+            // Assert
+            Assert.Equal(ServiceResponseCode.FAIL, result.Code);
+        }
+
+        [Fact]
+        public async Task AddRoomRightsAsync_Fail_WhenUserDoesNotExist()
+        {
+            // Arrange
+            var room = new Room 
+            {
+                Id = "room1", 
+                OwnerId = "owner1",
+                Name = "Room 1",
+                Description = "Sample Room Description",
+                Template = "",
+            };
+            _gameDbContext.Rooms.Add(room);
+            await _gameDbContext.SaveChangesAsync();
+            
+            // Act
+            var result = await _roomService.AddRoomRightsAsync(room.Id, "nonexistentUser");
+            
+            // Assert
+            Assert.Equal(ServiceResponseCode.FAIL, result.Code);
+        }
+
+        [Fact]
+        public async Task AddRoomRightsAsync_Fail_WhenUserIsOwner()
+        {
+            // Arrange
+            var room = new Room 
+            {
+                Id = "room1", 
+                OwnerId = "owner1",
+                Name = "Room 1",
+                Description = "Sample Room Description",
+                Template = "",
+            };
+            var user = new User { Id = "owner1" };
+            _gameDbContext.Rooms.Add(room);
+            _authDbContext.Users.Add(user);
+            await _gameDbContext.SaveChangesAsync();
+            await _authDbContext.SaveChangesAsync();
+            
+            // Act
+            var result = await _roomService.AddRoomRightsAsync(room.Id, user.Id);
+            
+            // Assert
+            Assert.Equal(ServiceResponseCode.FAIL, result.Code);
+        }
+
+        [Fact]
+        public async Task AddRoomRightsAsync_Fail_WhenUserAlreadyHasRights()
+        {
+            // Arrange
+            var room = new Room 
+            {
+                Id = "room1", 
+                OwnerId = "owner1",
+                Name = "Room 1",
+                Description = "Sample Room Description",
+                Template = "",
+            };
+            var user = new User { Id = "user1" };
+            room.RoomRights.Add(new RoomRight { RoomId = room.Id, UserId = user.Id });
+            _gameDbContext.Rooms.Add(room);
+            _authDbContext.Users.Add(user);
+            await _gameDbContext.SaveChangesAsync();
+            await _authDbContext.SaveChangesAsync();
+            
+            // Act
+            var result = await _roomService.AddRoomRightsAsync(room.Id, user.Id);
+            
+            // Assert
+            Assert.Equal(ServiceResponseCode.FAIL, result.Code);
+        }
+
+        [Fact]
+        public async Task RemoveRoomRightsAsync_Success_WhenRoomAndUserExist()
+        {
+            // Arrange
+            var room = new Room 
+            {
+                Id = "room1", 
+                OwnerId = "owner1",
+                Name = "Room 1",
+                Description = "Sample Room Description",
+                Template = "",
+            };
+            var user = new User { Id = "user1" };
+            room.RoomRights.Add(new RoomRight { RoomId = room.Id, UserId = user.Id });
+            _gameDbContext.Rooms.Add(room);
+            _authDbContext.Users.Add(user);
+            await _gameDbContext.SaveChangesAsync();
+            await _authDbContext.SaveChangesAsync();
+            
+            // Act
+            var result = await _roomService.RemoveRoomRightsAsync(room.Id, user.Id);
+            
+            // Assert
+            Assert.Equal(ServiceResponseCode.SUCCESS, result.Code);
+            Assert.DoesNotContain(room.RoomRights, r => r.UserId == user.Id);
+        }
+
+        [Fact]
+        public async Task RemoveRoomRightsAsync_Fail_WhenRoomDoesNotExist()
+        {
+            // Act
+            var result = await _roomService.RemoveRoomRightsAsync("nonexistentRoom", "user1");
+            
+            // Assert
+            Assert.Equal(ServiceResponseCode.FAIL, result.Code);
+        }
+
+        [Fact]
+        public async Task RemoveRoomRightsAsync_Fail_WhenUserDoesNotExist()
+        {
+            // Arrange
+            var room = new Room 
+            {
+                Id = "room1", 
+                OwnerId = "owner1",
+                Name = "Room 1",
+                Description = "Sample Room Description",
+                Template = "",
+            };
+            _gameDbContext.Rooms.Add(room);
+            await _gameDbContext.SaveChangesAsync();
+            
+            // Act
+            var result = await _roomService.RemoveRoomRightsAsync(room.Id, "nonexistentUser");
+            
+            // Assert
+            Assert.Equal(ServiceResponseCode.FAIL, result.Code);
+        }
+
+        [Fact]
+        public async Task RemoveRoomRightsAsync_Fail_WhenUserIsOwner()
+        {
+            // Arrange
+            var room = new Room 
+            {
+                Id = "room1", 
+                OwnerId = "owner1",
+                Name = "Room 1",
+                Description = "Sample Room Description",
+                Template = "",
+            };
+            var user = new User { Id = "owner1" };
+            _gameDbContext.Rooms.Add(room);
+            _authDbContext.Users.Add(user);
+            await _gameDbContext.SaveChangesAsync();
+            await _authDbContext.SaveChangesAsync();
+            
+            // Act
+            var result = await _roomService.RemoveRoomRightsAsync(room.Id, user.Id);
+            
+            // Assert
+            Assert.Equal(ServiceResponseCode.FAIL, result.Code);
+        }
+
+        [Fact]
+        public async Task RemoveRoomRightsAsync_Fail_WhenUserDoesNotHaveRights()
+        {
+            // Arrange
+            var room = new Room 
+            {
+                Id = "room1", 
+                OwnerId = "owner1",
+                Name = "Room 1",
+                Description = "Sample Room Description",
+                Template = "",
+            };
+            var user = new User { Id = "user1" };
+            _gameDbContext.Rooms.Add(room);
+            _authDbContext.Users.Add(user);
+            await _gameDbContext.SaveChangesAsync();
+            await _authDbContext.SaveChangesAsync();
+            
+            // Act
+            var result = await _roomService.RemoveRoomRightsAsync(room.Id, user.Id);
+            
+            // Assert
+            Assert.Equal(ServiceResponseCode.FAIL, result.Code);
         }
     }
 }
