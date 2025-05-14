@@ -6,5 +6,9 @@
         <Nullable>enable</Nullable>
         <RootNamespace>Iso.Shared</RootNamespace>
     </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="OneOf" Version="3.0.271" />
+    </ItemGroup>
     
 </Project>
