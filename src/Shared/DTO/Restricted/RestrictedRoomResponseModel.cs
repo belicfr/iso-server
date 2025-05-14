@@ -14,4 +14,4 @@ public record RestrictedRoomResponseModel(
     string? tagOne,
     string? tagTwo,
     bool isPublic,
-    List<PublicAccountResponseModel> rights): RoomResponseModel;
+    List<PublicAccountResponseModel> rights);
