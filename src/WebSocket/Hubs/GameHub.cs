@@ -3,11 +3,13 @@ using Iso.Data.Models.RoomModel;
 using Iso.Data.Models.UserModel;
 using Iso.Data.Services.DRoomService;
 using Iso.Data.Services.DUserService;
+using Iso.Shared.DTO;
 using Iso.Shared.DTO.Public;
 using Iso.Shared.DTO.Restricted;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.JsonWebTokens;
+using OneOf;
 
 namespace Iso.WebSocket.Hubs;
 
@@ -142,5 +144,13 @@ public partial class GameHub(
         }
         
         return await userService.GetUserBySsoAsync(sso);
+    }
+
+    private PublicAccountResponseModel PrepareAccount(User user)
+    {
+        return new PublicAccountResponseModel(
+            user.Id,
+            user.UserName ?? "Unknown", 
+            user.NormalizedUserName ?? "Unknown");
     }
 }
