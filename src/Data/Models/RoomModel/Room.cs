@@ -23,16 +23,12 @@ public class Room
     
     [NotMapped]
     public User Owner { get; set; }
-    
-    [InverseProperty(nameof(RoomTag.Room))]
-    public ICollection<RoomTag> RoomTags { get; set; } = new HashSet<RoomTag>();
 
-    [NotMapped]
-    public List<string> Tags
-        => RoomTags
-            .Select(t => t.Tag)
-            .Distinct()
-            .ToList();
+    [MaxLength(10)]
+    public string? TagOne { get; set; } = null;
+    
+    [MaxLength(10)]
+    public string? TagTwo { get; set; } = null;
 
     [Range(1, 200)]
     public int PlayersLimit { get; set; }

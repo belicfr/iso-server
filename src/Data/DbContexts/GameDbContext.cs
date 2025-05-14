@@ -60,24 +60,6 @@ public class GameDbContext(
                 .OnDelete(DeleteBehavior.Cascade);
         });
         
-        // ROOM TAGS
-        modelBuilder.Entity<RoomTag>(entity =>
-        {
-            entity.Property(rt => rt.Id)
-                .HasColumnOrder(0);
-            
-            entity.Property(rt => rt.Tag)
-                .HasColumnOrder(1);
-            
-            entity.Property(rt => rt.RoomId)
-                .HasColumnOrder(2);
-            
-            entity.HasOne(rt => rt.Room)
-                .WithMany(r => r.RoomTags)
-                .HasForeignKey(rt => rt.RoomId)
-                .OnDelete(DeleteBehavior.Cascade);
-        });
-        
         // ROOM GROUPS MEMBERS
         modelBuilder.Entity<GroupMember>(entity =>
         {
