@@ -19,9 +19,9 @@ public partial class GameHub
             return;
         }
         
-        List<string> friendsIds = user.UserFriends
-            .Select(uf => uf.UserId)
-            .ToList();
+        List<string> friendsIds = user.Friends?
+            .Select(f => f.Id)
+            .ToList() ?? new();
         
         await Clients.Caller.SendAsync(
             responseChannel, 
