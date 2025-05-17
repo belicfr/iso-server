@@ -12,11 +12,12 @@ public class GameDbContext(
     public DbSet<Group> Groups { get; set; }
     public DbSet<RoomBan> RoomBans { get; set; }
     public DbSet<RoomRight> RoomRights { get; set; }
+    public DbSet<RoomBannedWord> RoomBannedWords { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
+        
         // ROOMS
         modelBuilder.Entity<Room>(entity =>
         { });
@@ -54,6 +55,8 @@ public class GameDbContext(
         // ROOM BANNED WORDS
         modelBuilder.Entity<RoomBannedWord>(entity =>
         {
+            entity.HasKey(e => new { e.RoomId, e.BannedWord });
+            
             entity.HasOne(bw => bw.Room)
                 .WithMany(r => r.RoomBannedWords)
                 .HasForeignKey(bw => bw.RoomId)
