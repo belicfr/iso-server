@@ -18,9 +18,5 @@ public class User: IdentityUser
     
     public string? HomeRoomId { get; set; }
     
-    [NotMapped]
-    public Room? HomeRoom { get; set; }
-    
     public List<User> Friends { get; set; } = new();
-
 }
