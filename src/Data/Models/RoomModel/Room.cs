@@ -21,18 +21,15 @@ public class Room
     [Required]
     public string OwnerId { get; set; }
     
-    [NotMapped]
-    public User Owner { get; set; }
-
     [MaxLength(10)]
     public string? TagOne { get; set; } = null;
     
     [MaxLength(10)]
     public string? TagTwo { get; set; } = null;
 
+    [Required]
     [Range(1, 200)]
     public int PlayersLimit { get; set; }
-    
     
     [Required]
     public string Template { get; set; }
@@ -40,24 +37,20 @@ public class Room
     [InverseProperty(nameof(RoomBan.Room))]
     public ICollection<RoomBan> RoomBans { get; set; } = new HashSet<RoomBan>();
     
-    [NotMapped]
-    public List<User> BannedPlayers { get; set; } = new();
     
     [InverseProperty(nameof(RoomRight.Room))]
     public ICollection<RoomRight> RoomRights { get; set; } = new HashSet<RoomRight>();
     
-    [NotMapped]
-    public List<User> PlayersWithRights { get; set; } = new();
     
     [InverseProperty(nameof(RoomBannedWord.Room))]
     public ICollection<RoomBannedWord> RoomBannedWords { get; set; } = new HashSet<RoomBannedWord>();
-    
-    [NotMapped]
-    public List<string> BannedWords { get; set; } = new();
     
     [InverseProperty(nameof(Group.Room))]
     public Group? Group { get; set; }
 
     [Required]
     public bool IsPublic { get; set; }
+    
+    [Required]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
