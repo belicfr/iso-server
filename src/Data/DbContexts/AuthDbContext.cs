@@ -18,10 +18,8 @@ public class AuthDbContext : IdentityDbContext<User>
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<User>(entity =>
-        { });
-
         builder.Entity<User>()
+            .ToTable("AspNetUsers")
             .HasMany(u => u.Friends)
             .WithMany()
             .UsingEntity<Friendship>(
@@ -34,7 +32,5 @@ public class AuthDbContext : IdentityDbContext<User>
                     .HasForeignKey(f => f.UserId)
                     .OnDelete(DeleteBehavior.Cascade),
                 j => j.HasKey(f => new { f.UserId, f.FriendId }));
-
-
     }
 };
