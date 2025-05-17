@@ -1,11 +1,16 @@
 using System.Text;
 using Iso.Data.DbContexts;
 using Iso.Data.Managers;
-using Iso.Data.Models.RoomModel;
+using Iso.Data.Models.EventDispatchers.Rooms;
 using Iso.Data.Models.UserModel;
 using Iso.Data.Services.DRoomService;
 using Iso.Data.Services.DRoomTemplateService;
 using Iso.Data.Services.DUserService;
+using Iso.Data.Services.Runtime.Rooms;
+using Iso.Data.Services.Runtime.Rooms.Interfaces;
+using Iso.Data.Services.Runtime.RoomTemplates;
+using Iso.Data.Services.Runtime.Users;
+using Iso.WebSocket.EventDispatchers.Rooms;
 using Iso.WebSocket.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -16,10 +21,10 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<AuthDbContext>(
+builder.Services.AddDbContextFactory<AuthDbContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("DbConnectionString")));
 
-builder.Services.AddDbContext<GameDbContext>(
+builder.Services.AddDbContextFactory<GameDbContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("DbConnectionString")));
 
 builder.Services.AddIdentityApiEndpoints<User>()
@@ -77,8 +82,11 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<RoomService>();
 builder.Services.AddScoped<RoomTemplateService>();
 
-builder.Services.AddSingleton<RoomRuntimeService>();
+builder.Services.AddSingleton<IRoomRuntimeService, RoomRuntimeService>();
 builder.Services.AddSingleton<UserRuntimeService>();
+builder.Services.AddSingleton<RoomTemplateRuntimeService>();
+
+builder.Services.AddScoped<IRoomEventDispatcher, RoomEventDispatcher>();
 
 
 // If client is on another domain
