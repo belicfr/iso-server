@@ -5,7 +5,7 @@ namespace Iso.Data.Models.RoomModel;
 
 public class RoomBannedWord
 {
-    [Key]
+    [Required]
     public string RoomId { get; set; }
     
     [Required]
