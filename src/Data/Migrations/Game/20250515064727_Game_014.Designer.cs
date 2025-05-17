@@ -3,6 +3,7 @@ using System;
 using Iso.Data.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Iso.Data.Migrations.Game
 {
     [DbContext(typeof(GameDbContext))]
-    partial class GameDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250515064727_Game_014")]
+    partial class Game_014
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,10 +65,12 @@ namespace Iso.Data.Migrations.Game
             modelBuilder.Entity("Iso.Data.Models.RoomModel.GroupMember", b =>
                 {
                     b.Property<string>("GroupId")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnOrder(0);
 
                     b.Property<string>("UserId")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnOrder(1);
 
                     b.HasKey("GroupId", "UserId");
 
@@ -136,12 +141,13 @@ namespace Iso.Data.Migrations.Game
                         .HasColumnType("text");
 
                     b.Property<string>("BannedWord")
+                        .IsRequired()
                         .HasMaxLength(75)
                         .HasColumnType("character varying(75)");
 
-                    b.HasKey("RoomId", "BannedWord");
+                    b.HasKey("RoomId");
 
-                    b.ToTable("RoomBannedWords");
+                    b.ToTable("RoomBannedWord");
                 });
 
             modelBuilder.Entity("Iso.Data.Models.RoomModel.RoomRight", b =>
