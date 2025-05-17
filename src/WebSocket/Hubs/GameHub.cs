@@ -2,21 +2,22 @@ using System.Security.Claims;
 using Iso.Data.Models.RoomModel;
 using Iso.Data.Models.UserModel;
 using Iso.Data.Services.DRoomService;
+using Iso.Data.Services.DRoomTemplateService;
 using Iso.Data.Services.DUserService;
-using Iso.Shared.DTO;
+using Iso.Data.Services.Runtime.Rooms;
+using Iso.Data.Services.Runtime.Rooms.Interfaces;
+using Iso.Data.Services.Runtime.Users;
 using Iso.Shared.DTO.Public;
 using Iso.Shared.DTO.Restricted;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.JsonWebTokens;
-using OneOf;
 
 namespace Iso.WebSocket.Hubs;
 
 public partial class GameHub(
     RoomService roomService,
     UserService userService,
-    RoomRuntimeService roomRuntimeService,
+    RoomTemplateService roomTemplateService,
+    IRoomRuntimeService roomRuntimeService,
     UserRuntimeService userRuntimeService): Hub
 {
     public override async Task OnDisconnectedAsync(Exception exception)
@@ -30,7 +31,7 @@ public partial class GameHub(
             if (currentRoomId is not null)
             {
                 userRuntimeService.ClearCurrentRoom(user.Id);
-                roomRuntimeService.RemovePlayer(currentRoomId, user.Id);
+                roomRuntimeService.RemovePlayer(currentRoomId, user);
             }
         }
         
@@ -105,10 +106,44 @@ public partial class GameHub(
                 room.Group.CreatedAt);
         }
 
-        List<PublicAccountResponseModel> havingRights 
-            = (await roomService.GetPlayersWithRightsAsync(room.Id))
-                .Select(PrepareAccount)
-                .ToList();
+        
+        HashSet<RoomRight> roomRights = room.RoomRights
+            .ToHashSet();
+
+        List<PublicAccountResponseModel> havingRights = new();
+
+        foreach (RoomRight right in roomRights)
+        {
+            User? user = await userService.GetUserAsync(right.UserId);
+
+            if (user is not null)
+            {
+                havingRights.Add(PrepareAccount(user));                
+            }
+        }
+
+
+        HashSet<RoomBan> roomBans = room.RoomBans
+            .ToHashSet();
+        
+        List<PublicAccountResponseModel> bannedPlayers = new();
+
+        foreach (RoomBan ban in roomBans)
+        {
+            User? user = await userService.GetUserAsync(ban.UserId);
+
+            if (user is not null)
+            {
+                bannedPlayers.Add(PrepareAccount(user));
+            }
+        }
+        
+        HashSet<RoomBannedWord> roomBannedWords = room.RoomBannedWords
+            .ToHashSet();
+
+        List<string> bannedWords = roomBannedWords
+            .Select(e => e.BannedWord)
+            .ToList();
 
         return new RestrictedRoomResponseModel(
             room.Id,
@@ -122,7 +157,9 @@ public partial class GameHub(
             room.TagOne,
             room.TagTwo,
             room.IsPublic,
-            havingRights);
+            havingRights,
+            bannedPlayers,
+            bannedWords);
     }
     
     /// <summary>
