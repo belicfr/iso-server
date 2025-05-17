@@ -1,17 +1,24 @@
 using System.Collections;
 using Iso.Data.DbContexts;
 using Iso.Data.Models.RoomModel;
+using Iso.Data.Services.Runtime.RoomTemplates;
 using Microsoft.EntityFrameworkCore;
 
 namespace Iso.Data.Services.DRoomTemplateService;
 
 public class RoomTemplateService(
-    GameDbContext gameDbContext): IRoomTemplateService
+    GameDbContext gameDbContext,
+    RoomTemplateRuntimeService roomTemplateRuntimeService): IRoomTemplateService
 {
-    public IEnumerable<RoomTemplate> GetAllRoomTemplatesAsync()
+    public async Task<RoomTemplate?> GetRoomTemplateAsync(string roomTemplateId)
     {
-        return gameDbContext.RoomTemplates
-            .AsNoTracking()
-            .ToList();
+        return await roomTemplateRuntimeService
+            .GetRoomTemplateByIdAsync(roomTemplateId);
+    }
+
+    public async Task<IEnumerable<RoomTemplate>> GetAllRoomTemplatesAsync()
+    {
+        return await roomTemplateRuntimeService
+            .GetRoomTemplatesAsync();
     }
 }

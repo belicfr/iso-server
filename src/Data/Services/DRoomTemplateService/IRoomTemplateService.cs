@@ -5,9 +5,12 @@ namespace Iso.Data.Services.DRoomTemplateService;
 
 public interface IRoomTemplateService
 {
+    Task<RoomTemplate?> GetRoomTemplateAsync(string roomTemplateId);
+    
+    
     /// <summary>
     /// Retrieve all room templates.
     /// </summary>
     /// <returns></returns>
-    IEnumerable<RoomTemplate> GetAllRoomTemplatesAsync();
+    Task<IEnumerable<RoomTemplate>> GetAllRoomTemplatesAsync();
 }
