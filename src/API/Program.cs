@@ -144,10 +144,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseCors("AllowAll");
-
 app.UseHttpsRedirection();  // TODO: on prod
 
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
