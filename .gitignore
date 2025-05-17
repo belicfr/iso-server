@@ -34,4 +34,11 @@ TestResults/
 
 # Fichiers générés par Rider
 *.iml
-.idea/
+
+# CodeBuddy
+.codebuddy/
+
+# Env
+env/.env
+
+src/API/Properties/
