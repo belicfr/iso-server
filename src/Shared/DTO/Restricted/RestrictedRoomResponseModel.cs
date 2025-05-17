@@ -14,4 +14,6 @@ public record RestrictedRoomResponseModel(
     string? tagOne,
     string? tagTwo,
     bool isPublic,
-    List<PublicAccountResponseModel> rights);
+    List<PublicAccountResponseModel> rights,
+    List<PublicAccountResponseModel> bans,
+    List<string> bannedWords);
