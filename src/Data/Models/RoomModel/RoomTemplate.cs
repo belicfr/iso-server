@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.RegularExpressions;
 
 namespace Iso.Data.Models.RoomModel;
 
@@ -13,4 +15,9 @@ public class RoomTemplate
     
     [Required]
     public string Template { get; set; }
+
+    [NotMapped]
+    public int TilesCount => Regex
+        .Matches(Template, "[1-9E]")
+        .Count;
 }
