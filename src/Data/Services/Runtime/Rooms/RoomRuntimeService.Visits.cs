@@ -1,10 +1,12 @@
-namespace Iso.Data.Services.DRoomService;
+using Iso.Data.Models.UserModel;
 
-public class RoomRuntimeService: IRoomRuntimeService
+namespace Iso.Data.Services.Runtime.Rooms;
+
+public partial class RoomRuntimeService
 {
-    private readonly Dictionary<string, HashSet<string>> _playersInRoom = new();
-
-    public List<string> GetPlayers(string roomId)
+    private readonly Dictionary<string, HashSet<User>> _playersInRoom = new();
+    
+    public List<User> GetPlayers(string roomId)
     {
         return _playersInRoom.TryGetValue(roomId, out var players)
             ? players.ToList()
@@ -18,21 +20,21 @@ public class RoomRuntimeService: IRoomRuntimeService
             : 0;
     }
 
-    public void AddPlayer(string roomId, string userId)
+    public void AddPlayer(string roomId, User user)
     {
         if (!_playersInRoom.ContainsKey(roomId))
         {
             _playersInRoom[roomId] = new();
         }
         
-        _playersInRoom[roomId].Add(userId);
+        _playersInRoom[roomId].Add(user);
     }
 
-    public void RemovePlayer(string roomId, string userId)
+    public void RemovePlayer(string roomId, User user)
     {
         if (_playersInRoom.TryGetValue(roomId, out var players))
         {
-            players.Remove(userId);
+            players.Remove(user);
 
             if (players.Count == 0)
             {
@@ -41,9 +43,9 @@ public class RoomRuntimeService: IRoomRuntimeService
         }
     }
 
-    public bool IsPlayerInRoom(string roomId, string userId)
+    public bool IsPlayerInRoom(string roomId, User user)
     {
         return _playersInRoom.TryGetValue(roomId, out var players)
-            && players.Contains(userId);
+               && players.Contains(user);
     }
 }

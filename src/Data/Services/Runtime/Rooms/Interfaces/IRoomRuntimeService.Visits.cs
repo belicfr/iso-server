@@ -1,15 +1,15 @@
 using Iso.Data.Models.UserModel;
 
-namespace Iso.Data.Services.DRoomService;
+namespace Iso.Data.Services.Runtime.Rooms.Interfaces;
 
-public interface IRoomRuntimeService
+public partial interface IRoomRuntimeService
 {
     /// <summary>
     /// Retrieves players in the provided room.
     /// </summary>
     /// <param name="roomId"></param>
     /// <returns></returns>
-    public List<string> GetPlayers(string roomId);
+    public List<User> GetPlayers(string roomId);
     
     /// <summary>
     /// Retrieves players count in the provided room.
@@ -22,21 +22,21 @@ public interface IRoomRuntimeService
     /// Adds a player to the players in room dictionnary.
     /// </summary>
     /// <param name="roomId"></param>
-    /// <param name="userId"></param>
-    public void AddPlayer(string roomId, string userId);
+    /// <param name="user"></param>
+    public void AddPlayer(string roomId, User user);
     
     /// <summary>
     /// Removes a player from the players in room dictionnary.
     /// </summary>
     /// <param name="roomId"></param>
-    /// <param name="userId"></param>
-    public void RemovePlayer(string roomId, string userId);
+    /// <param name="user"></param>
+    public void RemovePlayer(string roomId, User user);
 
     /// <summary>
     /// Gets if provided user currently is in the provided room.
     /// </summary>
     /// <param name="roomId"></param>
-    /// <param name="userId"></param>
+    /// <param name="user"></param>
     /// <returns></returns>
-    public bool IsPlayerInRoom(string roomId, string userId);
+    public bool IsPlayerInRoom(string roomId, User user);
 }
