@@ -25,18 +25,11 @@ public interface IUserService
     /// <param name="userId"></param>
     /// <returns></returns>
     Task<Room?> GetHomeRoomAsync(string userId);
-    
+
     /// <summary>
     /// Loads the user's rooms.
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<IReadOnlyList<Room>> GetRoomsForUserAsync(string userId);
-    
-    /// <summary>
-    /// Returns if user id exists.
-    /// </summary>
-    /// <param name="userId"></param>
-    /// <returns></returns>
-    Task<bool> IsUserExistingAsync(string userId);
+    Task<HashSet<Room>> GetRoomsForUserAsync(string userId);
 }
