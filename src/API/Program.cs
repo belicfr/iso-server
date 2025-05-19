@@ -3,9 +3,11 @@ using Iso.Data.DbContexts;
 using Iso.Data.Managers;
 using Iso.Data.Models.EventDispatchers.Rooms;
 using Iso.Data.Models.UserModel;
+using Iso.Data.Services.DPromotionService;
 using Iso.Data.Services.DRoomService;
 using Iso.Data.Services.DRoomTemplateService;
 using Iso.Data.Services.DUserService;
+using Iso.Data.Services.Runtime.Promotions;
 using Iso.Data.Services.Runtime.Rooms;
 using Iso.Data.Services.Runtime.Rooms.Interfaces;
 using Iso.Data.Services.Runtime.RoomTemplates;
@@ -81,10 +83,12 @@ builder.Services.Configure<IdentityOptions>(options =>
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<RoomService>();
 builder.Services.AddScoped<RoomTemplateService>();
+builder.Services.AddScoped<PromotionService>();
 
 builder.Services.AddSingleton<IRoomRuntimeService, RoomRuntimeService>();
 builder.Services.AddSingleton<UserRuntimeService>();
 builder.Services.AddSingleton<RoomTemplateRuntimeService>();
+builder.Services.AddSingleton<PromotionsRuntimeService>();
 
 builder.Services.AddScoped<IRoomEventDispatcher, RoomEventDispatcher>();
 
