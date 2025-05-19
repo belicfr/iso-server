@@ -60,8 +60,10 @@ public partial class RoomRuntimeService(
     {
         IOrderedQueryable<Room> query = await InitializeRoomQuery();
         
-        HashSet<Room> rooms = await query
-            .ToHashSetAsync();
+        HashSet<Room> rooms = (await query
+            .ToListAsync())
+            .OrderByDescending(r => GetPlayersCount(r.Id))
+            .ToHashSet();
 
         foreach (Room room in rooms)
         {
