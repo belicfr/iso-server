@@ -25,7 +25,8 @@ public class RoomService(
     {
         bool isActorExists = (await userService.GetUserAsync(actorId)) is not null;
 
-        if (!isActorExists)
+        if (!isActorExists
+            || string.IsNullOrWhiteSpace(creationModel.Name))
         {
             return null;
         }
