@@ -1,3 +1,4 @@
+using Iso.Data.Models.HotelViewModel;
 using Iso.Data.Models.RoomModel;
 using Iso.Data.Models.UserModel;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ namespace Iso.Data.DbContexts;
 public class GameDbContext(
     DbContextOptions<GameDbContext> options): DbContext(options)
 {
+    public DbSet<Promotion> Promotions { get; set; }
     public DbSet<Room> Rooms { get; set; }
     public DbSet<RoomTemplate> RoomTemplates { get; set; }
     public DbSet<Group> Groups { get; set; }
@@ -17,6 +19,9 @@ public class GameDbContext(
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Promotion>(entity =>
+        { });
         
         // ROOMS
         modelBuilder.Entity<Room>(entity =>
