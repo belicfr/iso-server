@@ -11,4 +11,5 @@ public record PublicNavigatorRoomResponseModel(
     string ownerId,
     string? tagOne,
     string? tagTwo,
-    bool isPublic);
+    bool isPublic,
+    string thumbnail);

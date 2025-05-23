@@ -9,6 +9,7 @@ using Iso.Data.Services.DUserService;
 using Iso.Data.Services.Runtime.Rooms;
 using Iso.Data.Services.Runtime.Rooms.Interfaces;
 using Iso.Data.Services.Runtime.Users;
+using Microsoft.AspNetCore.Http;
 
 namespace Iso.Data.Services.DRoomService;
 
@@ -38,10 +39,11 @@ public class RoomService(
         {
             return null;
         }
+        
+        string thumbnail = "/src/assets/gamelib/arooms/pholder_roomtnail.png";
 
         Room room = new()
         {
-            // Id = Guid.NewGuid().ToString(),
             Name = creationModel.Name,
             Description = creationModel.Description,
             OwnerId = actorId,
@@ -49,6 +51,7 @@ public class RoomService(
             TagTwo = creationModel.TagTwo,
             PlayersLimit = 10,                    // TODO: implement
             Template = roomTemplate.Template,
+            Thumbnail = thumbnail,
         };
         
         await roomRuntimeService.CreateRoomAsync(room);

@@ -52,5 +52,8 @@ public class Room
     public bool IsPublic { get; set; }
     
     [Required]
+    public string Thumbnail { get; set; }
+    
+    [Required]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

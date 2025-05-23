@@ -45,7 +45,8 @@ public class RoomEventDispatcher(
             room.OwnerId,
             room.TagOne,
             room.TagTwo,
-            room.IsPublic);
+            room.IsPublic,
+            room.Thumbnail);
 
         await hubContext.Clients.Users(playersInRoomSsos)
             .SendAsync(

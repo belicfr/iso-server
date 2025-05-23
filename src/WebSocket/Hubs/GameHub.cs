@@ -87,7 +87,8 @@ public partial class GameHub(
             room.OwnerId,
             room.TagOne,
             room.TagTwo,
-            room.IsPublic);
+            room.IsPublic,
+            room.Thumbnail);
     }
     
     private async Task<RestrictedRoomResponseModel> PrepareRoomForOwner(Room room)
@@ -157,6 +158,7 @@ public partial class GameHub(
             room.TagOne,
             room.TagTwo,
             room.IsPublic,
+            room.Thumbnail,
             havingRights,
             bannedPlayers,
             bannedWords);

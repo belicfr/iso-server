@@ -112,7 +112,8 @@ public partial class GameHub
                 room.OwnerId,
                 room.TagOne,
                 room.TagTwo,
-                room.IsPublic);
+                room.IsPublic,
+                room.Thumbnail);
 
             props = [roomResponseModel];
         }
