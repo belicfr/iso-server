@@ -1,6 +1,9 @@
+using Iso.Shared.Physic;
+
 namespace Iso.Shared.DTO.Public;
 
 public record PublicAccountResponseModel(
-    string id,
-    string userName,
-    string normalizedUserName);
+    string Id,
+    string UserName,
+    string NormalizedUserName,
+    Coord2D Position);

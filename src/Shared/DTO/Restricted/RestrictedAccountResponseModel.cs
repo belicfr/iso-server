@@ -1,9 +1,12 @@
+using Iso.Shared.Physic;
+
 namespace Iso.Shared.DTO.Restricted;
 
 public record RestrictedAccountResponseModel(
-    string id,
-    string name,
-    string normalizedName,
-    string? homeRoomId,
-    int crowns,
-    List<string> friends);
+    string Id,
+    string Name,
+    string NormalizedName,
+    string? HomeRoomId,
+    int Crowns,
+    List<string> Friends,
+    Coord2D Position);
