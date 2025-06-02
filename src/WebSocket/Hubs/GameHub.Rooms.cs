@@ -254,7 +254,8 @@ public partial class GameHub
             userResponseModel = new PublicAccountResponseModel(
                 user.Id,
                 user.UserName ?? "Unknown",
-                user.NormalizedUserName ?? "UNKNOWN");
+                user.NormalizedUserName ?? "UNKNOWN",
+                user.Position);
             
             props = [userResponseModel];
         }
@@ -335,7 +336,8 @@ public partial class GameHub
             userResponseModel = new PublicAccountResponseModel(
                 user.Id,
                 user.UserName ?? "Unknown",
-                user.NormalizedUserName ?? "UNKNOWN");
+                user.NormalizedUserName ?? "UNKNOWN",
+                user.Position);
             
             props = [userResponseModel];
         }
@@ -469,7 +471,8 @@ public partial class GameHub
             userResponseModel = new PublicAccountResponseModel(
                 user.Id,
                 user.UserName ?? "Unknown",
-                user.NormalizedUserName ?? "UNKNOWN");
+                user.NormalizedUserName ?? "UNKNOWN",
+                user.Position);
             
             props = [userResponseModel];
         }

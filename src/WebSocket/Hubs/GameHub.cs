@@ -190,6 +190,7 @@ public partial class GameHub(
         return new PublicAccountResponseModel(
             user.Id,
             user.UserName ?? "Unknown", 
-            user.NormalizedUserName ?? "Unknown");
+            user.NormalizedUserName ?? "Unknown",
+            user.Position);
     }
 }

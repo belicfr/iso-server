@@ -34,7 +34,8 @@ public partial class GameHub
                 user.NormalizedUserName ?? "Unknown",
                 user.HomeRoomId,
                 user.Crowns,
-                friendsIds));
+                friendsIds,
+                user.Position));
     }
 
     public async Task SendRoomEnterAttempt(string roomId)
