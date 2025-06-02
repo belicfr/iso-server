@@ -28,7 +28,7 @@ public class AccountController(
             return BadRequest("User not found.");
         }
         
-        return Ok(new PublicAccountResponseModel(
+        return Ok(new PublicApiAccountResponseModel(
             user.Id, 
             user.UserName ?? "Unknown", 
             user.NormalizedUserName ?? "UNKNOWN"));
@@ -51,7 +51,7 @@ public class AccountController(
             return BadRequest("User not found.");
         }
         
-        return Ok(new PublicAccountResponseModel(
+        return Ok(new PublicApiAccountResponseModel(
             user.Id, 
             user.UserName ?? "Unknown", 
             user.NormalizedUserName ?? "UNKNOWN"));
