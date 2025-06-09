@@ -6,10 +6,10 @@ public partial class RoomRuntimeService
 {
     private readonly Dictionary<string, HashSet<User>> _playersInRoom = new();
     
-    public List<User> GetPlayers(string roomId)
+    public HashSet<User> GetPlayers(string roomId)
     {
         return _playersInRoom.TryGetValue(roomId, out var players)
-            ? players.ToList()
+            ? players.ToHashSet()
             : new();
     }
 

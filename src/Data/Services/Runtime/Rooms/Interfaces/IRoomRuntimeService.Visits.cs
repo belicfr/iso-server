@@ -9,7 +9,7 @@ public partial interface IRoomRuntimeService
     /// </summary>
     /// <param name="roomId"></param>
     /// <returns></returns>
-    public List<User> GetPlayers(string roomId);
+    public HashSet<User> GetPlayers(string roomId);
     
     /// <summary>
     /// Retrieves players count in the provided room.
