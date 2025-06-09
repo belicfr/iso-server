@@ -22,5 +22,5 @@ public class User: IdentityUser
     public List<User> Friends { get; set; } = new();
 
     [NotMapped]
-    public Coord2D Position { get; set; } = new(0f, 0f);
+    public Coord2D TileCoord { get; set; } = new(0f, 0f);
 }
