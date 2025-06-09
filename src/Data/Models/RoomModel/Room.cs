@@ -37,10 +37,8 @@ public class Room
     [InverseProperty(nameof(RoomBan.Room))]
     public ICollection<RoomBan> RoomBans { get; set; } = new HashSet<RoomBan>();
     
-    
     [InverseProperty(nameof(RoomRight.Room))]
     public ICollection<RoomRight> RoomRights { get; set; } = new HashSet<RoomRight>();
-    
     
     [InverseProperty(nameof(RoomBannedWord.Room))]
     public ICollection<RoomBannedWord> RoomBannedWords { get; set; } = new HashSet<RoomBannedWord>();
