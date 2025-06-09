@@ -2,6 +2,7 @@ using Iso.Data.Models.CreationModels;
 using Iso.Data.Models.RoomModel;
 using Iso.Data.Models.UserModel;
 using Iso.Data.Services.DRoomService.Responses;
+using Iso.Shared.Physic;
 
 namespace Iso.Data.Services.DRoomService;
 
@@ -165,4 +166,24 @@ public interface IRoomService
     /// <param name="word"></param>
     /// <returns></returns>
     Task<RemoveBannedWordResponse> RemoveBannedWordAsync(string roomId, string actorId, string word);
+    
+    
+    /// <summary>
+    /// Attempts to move given actor from and to given coords,
+    /// in the provided room.
+    /// </summary>
+    /// <param name="roomId"></param>
+    /// <param name="actorId"></param>
+    /// <param name="from"></param>
+    /// <param name="to"></param>
+    /// <returns></returns>
+    Task<List<Coord2D>?> MovePlayerAsync(string roomId, string actorId, Coord2D from, Coord2D to);
+    
+    
+    /// <summary>
+    /// Attempt to retrieve entry tile coordinate.
+    /// </summary>
+    /// <param name="roomId"></param>
+    /// <returns></returns>
+    Coord2D GetEntryCoord(Room room);
 }

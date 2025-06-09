@@ -6,10 +6,9 @@ using Iso.Data.Models.UserModel;
 using Iso.Data.Services.DRoomService.Responses;
 using Iso.Data.Services.DRoomTemplateService;
 using Iso.Data.Services.DUserService;
-using Iso.Data.Services.Runtime.Rooms;
 using Iso.Data.Services.Runtime.Rooms.Interfaces;
 using Iso.Data.Services.Runtime.Users;
-using Microsoft.AspNetCore.Http;
+using Iso.Shared.Physic;
 
 namespace Iso.Data.Services.DRoomService;
 
@@ -290,6 +289,8 @@ public class RoomService(
         // TODO: implement user's visits history
         userRuntimeService.SetCurrentRoom(actor.Id, room.Id);
         roomRuntimeService.AddPlayer(room.Id, actor);
+        
+        actor.TileCoord = GetEntryCoord(room);
         
         return EnterResponse.SUCCESS;
     }
@@ -652,5 +653,59 @@ public class RoomService(
         await gameDbContext.SaveChangesAsync();
         
         return RemoveBannedWordResponse.SUCCESS;
+    }
+
+    
+    public async Task<List<Coord2D>?> MovePlayerAsync(string roomId, string actorId, Coord2D from, Coord2D to)
+    {
+        Room? room = await GetRoomAsync(roomId);
+
+        if (room is null)
+        {
+            return null;
+        }
+        
+        User? actor = await userService.GetUserAsync(actorId);
+
+        if (actor is null)
+        {
+            return null;
+        }
+
+        string? currentActorRoom = userRuntimeService
+            .GetCurrentRoom(actorId);
+
+        if (currentActorRoom is null || currentActorRoom != roomId)
+        {
+            return null;
+        }
+
+        // TODO: store into runtime the move (tile p/ tile???)
+        
+        return new();   // TODO: STUB
+    }
+
+    
+    public Coord2D GetEntryCoord(Room room)
+    {
+        Coord2D defaultCoord = new(0, 0);
+        
+        var rows = room.Template
+            .Replace("\r", "")
+            .Trim()
+            .Split('\n');
+        
+        for (int x = 0; x < rows.Length; x++)
+        {
+            string row = rows[x];
+            int y = row.IndexOf('E');
+            
+            if (y >= 0)
+            {
+                return new(x, y);
+            }
+        }
+
+        return defaultCoord;
     }
 }
