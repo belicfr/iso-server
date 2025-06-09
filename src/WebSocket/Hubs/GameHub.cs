@@ -191,6 +191,6 @@ public partial class GameHub(
             user.Id,
             user.UserName ?? "Unknown", 
             user.NormalizedUserName ?? "Unknown",
-            user.Position);
+            user.TileCoord);
     }
 }

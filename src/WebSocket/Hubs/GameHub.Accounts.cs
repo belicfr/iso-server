@@ -35,22 +35,21 @@ public partial class GameHub
                 user.HomeRoomId,
                 user.Crowns,
                 friendsIds,
-                user.Position));
+                user.TileCoord));
     }
 
     public async Task SendRoomEnterAttempt(string roomId)
     {
         const string responseChannel = "ReceiveRoomEnterAttempt";
-
-        string? actorId = (await GetUserBySso())?
-            .Id;
+        
+        User? actor = await GetUserBySso();
 
         EnterResponse response = EnterResponse.FAIL;
         SenderResponseCode code = SenderResponseCode.FAIL;
 
-        if (actorId is not null)
+        if (actor is not null)
         {
-            response = await roomService.AttemptEnterRoom(roomId, actorId);
+            response = await roomService.AttemptEnterRoom(roomId, actor.Id);
             
             code = response == EnterResponse.SUCCESS
                 ? SenderResponseCode.SUCCESS
@@ -86,10 +85,10 @@ public partial class GameHub
 
         Room? room = await roomService.GetRoomAsync(roomId);
 
-        if (room is not null && code == SenderResponseCode.SUCCESS)
+        if (actor is not null && room is not null && code == SenderResponseCode.SUCCESS)
         {
             PublicGroupResponseModel? groupResponseModel = null;
-
+            
             if (room.Group is not null)
             {
                 groupResponseModel = new PublicGroupResponseModel(
@@ -102,11 +101,17 @@ public partial class GameHub
                     room.Group.CreatedAt);
             }
 
-            PublicNavigatorRoomResponseModel roomResponseModel = new PublicNavigatorRoomResponseModel(
+            HashSet<PublicAccountResponseModel> usersIds = roomRuntimeService
+                .GetPlayers(roomId)
+                .Select(PrepareAccount)
+                .ToHashSet();
+
+            PublicRenderRoomResponseModel roomResponseModel = new PublicRenderRoomResponseModel(
                 room.Id,
                 room.Name,
                 room.Description,
                 roomRuntimeService.GetPlayersCount(roomId),
+                usersIds,
                 room.PlayersLimit,
                 room.Template,
                 groupResponseModel,

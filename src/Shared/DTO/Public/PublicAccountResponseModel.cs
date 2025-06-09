@@ -6,4 +6,4 @@ public record PublicAccountResponseModel(
     string Id,
     string UserName,
     string NormalizedUserName,
-    Coord2D Position);
+    Coord2D TileCoord);

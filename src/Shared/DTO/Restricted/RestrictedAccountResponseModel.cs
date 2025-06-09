@@ -4,9 +4,9 @@ namespace Iso.Shared.DTO.Restricted;
 
 public record RestrictedAccountResponseModel(
     string Id,
-    string Name,
-    string NormalizedName,
+    string UserName,
+    string NormalizedUserName,
     string? HomeRoomId,
     int Crowns,
     List<string> Friends,
-    Coord2D Position);
+    Coord2D TileCoord);

@@ -3,7 +3,9 @@ using Iso.Data.Models.RoomModel;
 using Iso.Data.Models.UserModel;
 using Iso.Data.Services.DRoomService.Responses;
 using Iso.Shared.DTO.Public;
+using Iso.Shared.Physic;
 using Iso.WebSocket.Response;
+using Iso.WebSocket.Response.PlayerMove;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Iso.WebSocket.Hubs;
@@ -251,11 +253,7 @@ public partial class GameHub
                 ? SenderResponseCode.SUCCESS
                 : SenderResponseCode.FAIL;
 
-            userResponseModel = new PublicAccountResponseModel(
-                user.Id,
-                user.UserName ?? "Unknown",
-                user.NormalizedUserName ?? "UNKNOWN",
-                user.Position);
+            userResponseModel = PrepareAccount(user);
             
             props = [userResponseModel];
         }
@@ -333,11 +331,7 @@ public partial class GameHub
                 ? SenderResponseCode.SUCCESS
                 : SenderResponseCode.FAIL;
 
-            userResponseModel = new PublicAccountResponseModel(
-                user.Id,
-                user.UserName ?? "Unknown",
-                user.NormalizedUserName ?? "UNKNOWN",
-                user.Position);
+            userResponseModel = PrepareAccount(user);
             
             props = [userResponseModel];
         }
@@ -468,11 +462,7 @@ public partial class GameHub
                 ? SenderResponseCode.SUCCESS
                 : SenderResponseCode.FAIL;
 
-            userResponseModel = new PublicAccountResponseModel(
-                user.Id,
-                user.UserName ?? "Unknown",
-                user.NormalizedUserName ?? "UNKNOWN",
-                user.Position);
+            userResponseModel = PrepareAccount(user);
             
             props = [userResponseModel];
         }
@@ -714,5 +704,39 @@ public partial class GameHub
                 code,
                 message,
                 props));
+    }
+
+    public async Task SendMovePlayer(string roomId, Coord2D from, Coord2D to)
+    {
+        const string responseChannel = "ReceiveMovePlayer";
+
+        User? actor = await GetUserBySso();
+        
+        SenderResponseCode code = SenderResponseCode.FAIL;
+        
+        List<Coord2D>? path = new();
+
+        if (actor is not null)
+        {
+            path = await roomService.MovePlayerAsync(
+                roomId,
+                actor.Id,
+                from,
+                to);
+            
+            code = SenderResponseCode.SUCCESS;
+        }
+
+        PublicAccountResponseModel? preparedActor = actor is not null
+            ? PrepareAccount(actor)
+            : null;
+        
+        // TODO: replace Caller by all room players
+        await Clients.Caller.SendAsync(
+            responseChannel,
+            new SenderResponse(
+                code,
+                null,
+                [preparedActor, path]));
     }
 }
